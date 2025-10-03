@@ -131,7 +131,7 @@ dmypy.json
 .pyre/
 
 #Sample Project
-dbtnzsampleproject/target/
-dbtnzsampleproject/dbt_packages/
-dbtnzsampleproject/logs/
-dbtnzsampleproject/DS_Store
+dbtdb2sampleproject/target/
+dbtdb2sampleproject/dbt_packages/
+dbtdb2sampleproject/logs/
+dbtdb2sampleproject/DS_Store

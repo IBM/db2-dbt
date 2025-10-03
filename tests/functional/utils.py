@@ -15,7 +15,7 @@ from dbt_common.events.functions import (
 )
 from dbt_common.events.base_types import EventMsg
 
-from dbt.adapters.netezza.et_options_parser import create_et_options
+from dbt.adapters.db2.et_options_parser import create_et_options
 
 
 @contextmanager

@@ -4,7 +4,7 @@ import pytest
 from dbt.adapters.contracts.relation import RelationType
 from dbt.adapters.relation_configs.config_change import RelationConfigChangeAction
 
-from dbt.adapters.netezza.relation import NetezzaRelation
+from dbt.adapters.db2.relation import NetezzaRelation
 
 
 @pytest.mark.skip(

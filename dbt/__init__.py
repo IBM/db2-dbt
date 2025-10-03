@@ -9,7 +9,7 @@ from dbt.cli.main import cli, global_flags
 from dbt.task.init import InitTask
 from dbt.events.types import SettingUpProfile, InvalidProfileTemplateYAML
 from dbt_common.events.functions import fire_event
-from dbt.adapters.netezza.et_options_parser import create_et_options
+from dbt.adapters.db2.et_options_parser import create_et_options
 
 class NetezzaInitTask(InitTask):
     def setup_profile(self, profile_name: str) -> None:

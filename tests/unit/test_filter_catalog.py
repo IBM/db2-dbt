@@ -4,7 +4,7 @@ from unittest import TestCase
 import agate
 from dbt_common.clients import agate_helper
 
-from dbt.adapters.netezza import NetezzaAdapter
+from dbt.adapters.db2 import NetezzaAdapter
 
 
 class TestNetezzaFilterCatalog(TestCase):

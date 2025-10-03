@@ -1,4 +1,4 @@
-from dbt.adapters.netezza.relation import NetezzaRelation
+from dbt.adapters.db2.relation import NetezzaRelation
 from dbt.adapters.contracts.relation import RelationType
 
 

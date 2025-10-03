@@ -1,10 +1,10 @@
 fixed:
-  type: netezza
+  type: db2
 prompts:
   host:
     hint: 'hostname for the instance'
   port:
-    default: 5480
+    default: 50000
     type: 'int'
   user:
     hint: 'dev username'

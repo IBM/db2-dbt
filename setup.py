@@ -34,7 +34,7 @@ with open(os.path.join(this_directory, "README.md")) as f:
 # get this package's version from dbt/adapters/<name>/__version__.py
 def _get_plugin_version_dict():
     _version_path = os.path.join(
-        this_directory, "dbt", "adapters", "netezza", "__version__.py"
+        this_directory, "dbt", "adapters", "db2", "__version__.py"
     )
     _semver = r"""(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)"""
     _pre = r"""((?P<prekind>a|b|rc)(?P<pre>\d+))?"""
@@ -54,10 +54,10 @@ def _get_dbt_core_version():
     return f"{minor}{pre}"
 
 
-package_name = "dbt-ibm-netezza"
+package_name = "dbt-ibm-db2"
 package_version = "1.0.5"
 dbt_core_version = _get_dbt_core_version()
-description = """The Netezza adapter plugin for dbt"""
+description = """The IBM Db2 adapter plugin for dbt"""
 
 setup(
     name=package_name,

@@ -16,11 +16,11 @@ from dbt_common.helper_types import Port
 import nzpy
 
 
-logger = AdapterLogger("Netezza")
+logger = AdapterLogger("db2")
 
 
 @dataclass
-class NetezzaCredentials(Credentials):
+class DB2Credentials(Credentials):
     """
     Defines database specific credentials that get added to
     profiles.yml to connect to new adapter
@@ -40,7 +40,7 @@ class NetezzaCredentials(Credentials):
     @property
     def type(self):
         """Return name of adapter."""
-        return "netezza"
+        return "db2"
 
     @property
     def unique_field(self):
@@ -61,8 +61,8 @@ class NetezzaCredentials(Credentials):
         )
 
 
-class NetezzaConnectionManager(connection_cls):
-    TYPE = "netezza"
+class DB2ConnectionManager(connection_cls):
+    TYPE = "db2"
 
     @contextmanager
     def exception_handler(self, sql):
@@ -74,11 +74,11 @@ class NetezzaConnectionManager(connection_cls):
             yield
 
         except nzpy.core.ProgrammingError as e:
-            logger.error("NZ backend responded with: {}", str(e))
+            logger.error("Db2 backend responded with: {}", str(e))
             raise DbtRuntimeError(str(e)) from e
 
         except nzpy.DatabaseError as e:
-            logger.debug("Netezza error: {}", str(e))
+            logger.debug("Db2 error: {}", str(e))
             try:
                 self.rollback_if_open()
             except nzpy.DatabaseError:

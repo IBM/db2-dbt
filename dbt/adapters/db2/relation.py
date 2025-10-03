@@ -4,7 +4,7 @@ from dbt.adapters.base.relation import BaseRelation, Policy, Path, InformationSc
 from dbt.adapters.contracts.relation import ComponentName, RelationType
 
 @dataclass
-class NetezzaPath(Path):
+class DB2Path(Path):
     def get_part(self, key: ComponentName) -> Optional[str]:
         if key == ComponentName.Database:
             if self.database is None:
@@ -24,16 +24,16 @@ class NetezzaPath(Path):
             )
 
 @dataclass
-class NetezzaQuotePolicy(Policy):
+class DB2QuotePolicy(Policy):
     database: bool = True
     schema: bool = True
     identifier: bool = True
 
 
 @dataclass(frozen=True, eq=False, repr=False)
-class NetezzaRelation(BaseRelation):
-    path: NetezzaPath
-    quote_policy: Policy = field(default_factory=lambda: NetezzaQuotePolicy())
+class DB2Relation(BaseRelation):
+    path: DB2Path
+    quote_policy: Policy = field(default_factory=lambda: DB2QuotePolicy())
 
     def _is_exactish_match(self, field: ComponentName, value: str) -> bool:
         # Remove requirement for dbt_created due to dbt bug with cache preservation
@@ -45,24 +45,24 @@ class NetezzaRelation(BaseRelation):
 
     @staticmethod
     def add_ephemeral_prefix(name: str):
-        # Netezza reserves '_' name prefix for system catalogs
+        # DB2 reserves '_' name prefix for system catalogs
         return f"dbt__cte__{name}"
 
-    def information_schema(self, view_name=None) -> "NetezzaInformationSchema":
+    def information_schema(self, view_name=None) -> "DB2InformationSchema":
         # some of our data comes from jinja, where things can be `Undefined`.
         if not isinstance(view_name, str):
             view_name = None
 
         # Kick the user-supplied schema out of the information schema relation
         # Instead address this as <database>.information_schema by default
-        info_schema = NetezzaInformationSchema.from_relation(self, view_name)
+        info_schema = DB2InformationSchema.from_relation(self, view_name)
         return info_schema.incorporate(path={"schema": None})
 
-Info = TypeVar("Info", bound="NetezzaInformationSchema")
+Info = TypeVar("Info", bound="DB2InformationSchema")
 
-class NetezzaInformationSchema(InformationSchema):
+class DB2InformationSchema(InformationSchema):
     @classmethod
-    def get_path(cls, relation: NetezzaRelation, information_schema_view: Optional[str]) -> NetezzaPath:
+    def get_path(cls, relation: DB2Relation, information_schema_view: Optional[str]) -> DB2Path:
         return Path(
             database=relation.database.replace('"', ""),
             schema=relation.schema,
@@ -72,7 +72,7 @@ class NetezzaInformationSchema(InformationSchema):
     @classmethod
     def from_relation(
         cls: Type[Info],
-        relation: NetezzaRelation,
+        relation: DB2Relation,
         information_schema_view: Optional[str],
     ) -> Info:
         include_policy = cls.get_include_policy(relation, information_schema_view)

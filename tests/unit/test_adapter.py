@@ -9,7 +9,7 @@ from dbt_common.context import set_invocation_context
 from dbt_common.exceptions import DbtValidationError
 import pytest
 
-from dbt.adapters.netezza import Plugin as NetezzaPlugin, NetezzaAdapter
+from dbt.adapters.db2 import Plugin as NetezzaPlugin, NetezzaAdapter
 from tests.unit.utils import (
     config_from_parts_or_dicts,
     inject_adapter,
@@ -52,7 +52,7 @@ class TestNetezzaAdapter(TestCase):
             inject_adapter(self._adapter, NetezzaPlugin)
         return self._adapter
 
-    @mock.patch("dbt.adapters.netezza.connections.nzpy")
+    @mock.patch("dbt.adapters.db2.connections.nzpy")
     def test_acquire_connection_validations(self, nzpy):
         try:
             connection = self.adapter.acquire_connection("dummy")
@@ -66,7 +66,7 @@ class TestNetezzaAdapter(TestCase):
         connection.handle
         nzpy.connect.assert_called_once()
 
-    @mock.patch("dbt.adapters.netezza.connections.nzpy")
+    @mock.patch("dbt.adapters.db2.connections.nzpy")
     def test_acquire_connection(self, nzpy):
         connection = self.adapter.acquire_connection("dummy")
 
@@ -106,7 +106,7 @@ class TestNetezzaAdapter(TestCase):
 
         master.handle.get_backend_pid.assert_not_called()
 
-    @mock.patch("dbt.adapters.netezza.connections.nzpy")
+    @mock.patch("dbt.adapters.db2.connections.nzpy")
     def test_default_connect_timeout(self, nzpy):
         connection = self.adapter.acquire_connection("dummy")
 
@@ -123,7 +123,7 @@ class TestNetezzaAdapter(TestCase):
     @pytest.mark.skip(
         """Skipping. since dbt-ibm-netezza doesn't support connection timeout yet."""
     )
-    @mock.patch("dbt.adapters.netezza.connections.nzpy")
+    @mock.patch("dbt.adapters.db2.connections.nzpy")
     def test_changed_connect_timeout(self, nzpy):
         self.config.credentials = self.config.credentials.replace(connect_timeout=30)
         connection = self.adapter.acquire_connection("dummy")
@@ -140,7 +140,7 @@ class TestNetezzaAdapter(TestCase):
             application_name="dbt",
         )
 
-    @mock.patch("dbt.adapters.netezza.connections.nzpy")
+    @mock.patch("dbt.adapters.db2.connections.nzpy")
     def test_default_keepalive(self, nzpy):
         connection = self.adapter.acquire_connection("dummy")
 
@@ -158,7 +158,7 @@ class TestNetezzaAdapter(TestCase):
     @pytest.mark.skip(
         """Skipping. since dbt-ibm-netezza doesn't support keepalives_idle yet."""
     )
-    @mock.patch("dbt.adapters.netezza.connections.nzpy")
+    @mock.patch("dbt.adapters.db2.connections.nzpy")
     def test_changed_keepalive(self, nzpy):
         self.config.credentials = self.config.credentials.replace(keepalives_idle=256)
         connection = self.adapter.acquire_connection("dummy")
@@ -176,7 +176,7 @@ class TestNetezzaAdapter(TestCase):
             application_name="dbt",
         )
 
-    @mock.patch("dbt.adapters.netezza.connections.nzpy")
+    @mock.patch("dbt.adapters.db2.connections.nzpy")
     def test_default_application_name(self, nzpy):
         connection = self.adapter.acquire_connection("dummy")
 
@@ -194,7 +194,7 @@ class TestNetezzaAdapter(TestCase):
     @pytest.mark.skip(
         """Skipping. since dbt-ibm-netezza doesn't support application rename yet."""
     )
-    @mock.patch("dbt.adapters.netezza.connections.nzpy")
+    @mock.patch("dbt.adapters.db2.connections.nzpy")
     def test_changed_application_name(self, nzpy):
         print(f"creds: {self.config.credentials}")
         self.config.credentials = self.config.credentials.replace(application_name="myapp")
@@ -214,7 +214,7 @@ class TestNetezzaAdapter(TestCase):
     @pytest.mark.skip(
         """Skipping. since dbt-ibm-netezza doesn't support role in connections yet."""
     )
-    @mock.patch("dbt.adapters.netezza.connections.nzpy")
+    @mock.patch("dbt.adapters.db2.connections.nzpy")
     def test_role(self, nzpy):
         self.config.credentials = self.config.credentials.replace(role="somerole")
         connection = self.adapter.acquire_connection("dummy")
@@ -226,7 +226,7 @@ class TestNetezzaAdapter(TestCase):
     @pytest.mark.skip(
         """Skipping. search-path is a postgres feature."""
     )
-    @mock.patch("dbt.adapters.netezza.connections.nzpy")
+    @mock.patch("dbt.adapters.db2.connections.nzpy")
     def test_search_path(self, nzpy):
         self.config.credentials = self.config.credentials.replace(search_path="test")
         connection = self.adapter.acquire_connection("dummy")
@@ -247,7 +247,7 @@ class TestNetezzaAdapter(TestCase):
     @pytest.mark.skip(
         """Skipping. since dbt-ibm-netezza doesn't support sslmode yet."""
     )
-    @mock.patch("dbt.adapters.netezza.connections.nzpy")
+    @mock.patch("dbt.adapters.db2.connections.nzpy")
     def test_sslmode(self, nzpy):
         self.config.credentials = self.config.credentials.replace(sslmode="require")
         connection = self.adapter.acquire_connection("dummy")
@@ -268,7 +268,7 @@ class TestNetezzaAdapter(TestCase):
     @pytest.mark.skip(
         """Skipping. since dbt-ibm-netezza doesn't support sslmode yet."""
     )
-    @mock.patch("dbt.adapters.netezza.connections.nzpy")
+    @mock.patch("dbt.adapters.db2.connections.nzpy")
     def test_ssl_parameters(self, nzpy):
         self.config.credentials = self.config.credentials.replace(sslmode="verify-ca")
         self.config.credentials = self.config.credentials.replace(sslcert="service.crt")
@@ -295,7 +295,7 @@ class TestNetezzaAdapter(TestCase):
     @pytest.mark.skip(
         """Skipping. since dbt-ibm-netezza doesn't support search_path yet."""
     )
-    @mock.patch("dbt.adapters.netezza.connections.nzpy")
+    @mock.patch("dbt.adapters.db2.connections.nzpy")
     def test_schema_with_space(self, nzpy):
         self.config.credentials = self.config.credentials.replace(search_path="test test")
         connection = self.adapter.acquire_connection("dummy")
@@ -316,7 +316,7 @@ class TestNetezzaAdapter(TestCase):
     @pytest.mark.skip(
         """Skipping. since dbt-ibm-netezza doesn't support keepalives_idle yet."""
     )
-    @mock.patch("dbt.adapters.netezza.connections.nzpy")
+    @mock.patch("dbt.adapters.db2.connections.nzpy")
     def test_set_zero_keepalive(self, nzpy):
         self.config.credentials = self.config.credentials.replace(keepalives_idle=0)
         connection = self.adapter.acquire_connection("dummy")

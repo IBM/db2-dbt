@@ -10,7 +10,7 @@ from dbt.task.debug import DebugTask
 from dbt_common.exceptions import DbtConfigError
 from nzpy import DatabaseError, Connection
 
-from dbt.adapters.netezza import Plugin as NetezzaPlugin, NetezzaAdapter
+from dbt.adapters.db2 import Plugin as NetezzaPlugin, NetezzaAdapter
 from tests.unit.utils import (
     clear_plugin,
     config_from_parts_or_dicts,
@@ -55,7 +55,7 @@ class TestNetezzaConnection(TestCase):
         self.handle = mock.MagicMock(spec=Connection)
         self.cursor = self.handle.cursor.return_value
         self.mock_execute = self.cursor.execute
-        self.patcher = mock.patch("dbt.adapters.netezza.connections.nzpy")
+        self.patcher = mock.patch("dbt.adapters.db2.connections.nzpy")
         self.nzpy = self.patcher.start()
 
         # Create the Manifest.state_check patcher
