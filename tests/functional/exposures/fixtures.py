@@ -1,9 +1,9 @@
 models_sql = """
-select 1 as id
+select 1 as id from SYSIBM.SYSDUMMY1
 """
 
 second_model_sql = """
-select 1 as id
+select 1 as id from SYSIBM.SYSDUMMY1
 """
 
 

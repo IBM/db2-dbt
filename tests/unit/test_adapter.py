@@ -8,6 +8,7 @@ from dbt.adapters.contracts.relation import Path
 from dbt_common.context import set_invocation_context
 from dbt_common.exceptions import DbtValidationError
 import pytest
+import ibm_db, ibm_db_dbi
 
 from dbt.adapters.db2 import Plugin as NetezzaPlugin, NetezzaAdapter
 from tests.unit.utils import (
@@ -52,8 +53,8 @@ class TestNetezzaAdapter(TestCase):
             inject_adapter(self._adapter, NetezzaPlugin)
         return self._adapter
 
-    @mock.patch("dbt.adapters.db2.connections.nzpy")
-    def test_acquire_connection_validations(self, nzpy):
+    @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi")
+    def test_acquire_connection_validations(self, ibm_db):
         try:
             connection = self.adapter.acquire_connection("dummy")
         except DbtValidationError as e:
@@ -62,19 +63,19 @@ class TestNetezzaAdapter(TestCase):
             self.fail("acquiring connection failed with unknown exception: {}".format(str(e)))
         self.assertEqual(connection.type, "netezza")
 
-        nzpy.connect.assert_not_called()
+        ibm_db_dbi.connect.assert_not_called()
         connection.handle
-        nzpy.connect.assert_called_once()
+        ibm_db_dbi.connect.assert_called_once()
 
-    @mock.patch("dbt.adapters.db2.connections.nzpy")
-    def test_acquire_connection(self, nzpy):
+    @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi")
+    def test_acquire_connection(self, ibm_db):
         connection = self.adapter.acquire_connection("dummy")
 
-        nzpy.connect.assert_not_called()
+        ibm_db_dbi.connect.assert_not_called()
         connection.handle
         self.assertEqual(connection.state, "open")
         self.assertNotEqual(connection.handle, None)
-        nzpy.connect.assert_called_once()
+        ibm_db_dbi.connect.assert_called_once()
 
     def test_cancel_open_connections_empty(self):
         self.assertEqual(len(list(self.adapter.cancel_open_connections())), 0)
@@ -106,47 +107,47 @@ class TestNetezzaAdapter(TestCase):
 
         master.handle.get_backend_pid.assert_not_called()
 
-    @mock.patch("dbt.adapters.db2.connections.nzpy")
-    def test_default_connect_timeout(self, nzpy):
+    @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi")
+    def test_default_connect_timeout(self, ibm_db):
         connection = self.adapter.acquire_connection("dummy")
 
-        nzpy.connect.assert_not_called()
+        ibm_db_dbi.connect.assert_not_called()
         connection.handle
-        nzpy.connect.assert_called_once_with(
+        ibm_db_dbi.connect.assert_called_once_with(
             user='root',
             password='password', 
             host='thishostshouldnotexist', 
-            port=5480, database='testdbt', 
+            port=50000, database='testdbt', 
             logOptions=mock.ANY
         )
 
     @pytest.mark.skip(
         """Skipping. since dbt-ibm-netezza doesn't support connection timeout yet."""
     )
-    @mock.patch("dbt.adapters.db2.connections.nzpy")
-    def test_changed_connect_timeout(self, nzpy):
+    @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi")
+    def test_changed_connect_timeout(self, ibm_db):
         self.config.credentials = self.config.credentials.replace(connect_timeout=30)
         connection = self.adapter.acquire_connection("dummy")
 
-        nzpy.connect.assert_not_called()
+        ibm_db_dbi.connect.assert_not_called()
         connection.handle
-        nzpy.connect.assert_called_once_with(
+        ibm_db_dbi.connect.assert_called_once_with(
             dbname="netezza",
             user="root",
             host="thishostshouldnotexist",
             password="password",
-            port=5432,
+            port=50000,
             connect_timeout=30,
             application_name="dbt",
         )
 
-    @mock.patch("dbt.adapters.db2.connections.nzpy")
-    def test_default_keepalive(self, nzpy):
+    @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi")
+    def test_default_keepalive(self, ibm_db):
         connection = self.adapter.acquire_connection("dummy")
 
-        nzpy.connect.assert_not_called()
+        ibm_db_dbi.connect.assert_not_called()
         connection.handle
-        nzpy.connect.assert_called_once_with(
+        ibm_db_dbi.connect.assert_called_once_with(
             user='root', 
             password='password', 
             host='thishostshouldnotexist', 
@@ -158,31 +159,31 @@ class TestNetezzaAdapter(TestCase):
     @pytest.mark.skip(
         """Skipping. since dbt-ibm-netezza doesn't support keepalives_idle yet."""
     )
-    @mock.patch("dbt.adapters.db2.connections.nzpy")
-    def test_changed_keepalive(self, nzpy):
+    @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi")
+    def test_changed_keepalive(self, ibm_db):
         self.config.credentials = self.config.credentials.replace(keepalives_idle=256)
         connection = self.adapter.acquire_connection("dummy")
 
-        nzpy.connect.assert_not_called()
+        ibm_db_dbi.connect.assert_not_called()
         connection.handle
-        nzpy.connect.assert_called_once_with(
+        ibm_db_dbi.connect.assert_called_once_with(
             dbname="netezza",
             user="root",
             host="thishostshouldnotexist",
             password="password",
-            port=5432,
+            port=50000,
             connect_timeout=10,
             keepalives_idle=256,
             application_name="dbt",
         )
 
-    @mock.patch("dbt.adapters.db2.connections.nzpy")
-    def test_default_application_name(self, nzpy):
+    @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi")
+    def test_default_application_name(self, ibm_db):
         connection = self.adapter.acquire_connection("dummy")
 
-        nzpy.connect.assert_not_called()
+        ibm_db_dbi.connect.assert_not_called()
         connection.handle
-        nzpy.connect.assert_called_once_with(
+        ibm_db_dbi.connect.assert_called_once_with(
             user='root', 
             password='password', 
             host='thishostshouldnotexist', 
@@ -194,28 +195,28 @@ class TestNetezzaAdapter(TestCase):
     @pytest.mark.skip(
         """Skipping. since dbt-ibm-netezza doesn't support application rename yet."""
     )
-    @mock.patch("dbt.adapters.db2.connections.nzpy")
-    def test_changed_application_name(self, nzpy):
+    @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi")
+    def test_changed_application_name(self, ibm_db):
         print(f"creds: {self.config.credentials}")
         self.config.credentials = self.config.credentials.replace(application_name="myapp")
         connection = self.adapter.acquire_connection("dummy")
 
-        nzpy.connect.assert_not_called()
+        ibm_db_dbi.connect.assert_not_called()
         connection.handle
-        nzpy.connect.assert_called_once_with(
+        ibm_db_dbi.connect.assert_called_once_with(
             dbname="netezza",
             user="root",
             host="thishostshouldnotexist",
             password="password",
-            port=5432,
+            port=50000,
             connect_timeout=10,
         )
 
     @pytest.mark.skip(
         """Skipping. since dbt-ibm-netezza doesn't support role in connections yet."""
     )
-    @mock.patch("dbt.adapters.db2.connections.nzpy")
-    def test_role(self, nzpy):
+    @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi")
+    def test_role(self, ibm_db):
         self.config.credentials = self.config.credentials.replace(role="somerole")
         connection = self.adapter.acquire_connection("dummy")
 
@@ -226,19 +227,19 @@ class TestNetezzaAdapter(TestCase):
     @pytest.mark.skip(
         """Skipping. search-path is a postgres feature."""
     )
-    @mock.patch("dbt.adapters.db2.connections.nzpy")
-    def test_search_path(self, nzpy):
+    @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi")
+    def test_search_path(self, ibm_db):
         self.config.credentials = self.config.credentials.replace(search_path="test")
         connection = self.adapter.acquire_connection("dummy")
 
-        nzpy.connect.assert_not_called()
+        ibm_db_dbi.connect.assert_not_called()
         connection.handle
-        nzpy.connect.assert_called_once_with(
+        ibm_db_dbi.connect.assert_called_once_with(
             dbname="netezza",
             user="root",
             host="thishostshouldnotexist",
             password="password",
-            port=5432,
+            port=50000,
             connect_timeout=10,
             application_name="dbt",
             options="-c search_path=test",
@@ -247,19 +248,19 @@ class TestNetezzaAdapter(TestCase):
     @pytest.mark.skip(
         """Skipping. since dbt-ibm-netezza doesn't support sslmode yet."""
     )
-    @mock.patch("dbt.adapters.db2.connections.nzpy")
-    def test_sslmode(self, nzpy):
+    @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi")
+    def test_sslmode(self, ibm_db):
         self.config.credentials = self.config.credentials.replace(sslmode="require")
         connection = self.adapter.acquire_connection("dummy")
 
-        nzpy.connect.assert_not_called()
+        ibm_db_dbi.connect.assert_not_called()
         connection.handle
-        nzpy.connect.assert_called_once_with(
+        ibm_db_dbi.connect.assert_called_once_with(
             dbname="netezza",
             user="root",
             host="thishostshouldnotexist",
             password="password",
-            port=5432,
+            port=50000,
             connect_timeout=10,
             sslmode="require",
             application_name="dbt",
@@ -268,22 +269,22 @@ class TestNetezzaAdapter(TestCase):
     @pytest.mark.skip(
         """Skipping. since dbt-ibm-netezza doesn't support sslmode yet."""
     )
-    @mock.patch("dbt.adapters.db2.connections.nzpy")
-    def test_ssl_parameters(self, nzpy):
+    @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi")
+    def test_ssl_parameters(self, ibm_db):
         self.config.credentials = self.config.credentials.replace(sslmode="verify-ca")
         self.config.credentials = self.config.credentials.replace(sslcert="service.crt")
         self.config.credentials = self.config.credentials.replace(sslkey="service.key")
         self.config.credentials = self.config.credentials.replace(sslrootcert="ca.crt")
         connection = self.adapter.acquire_connection("dummy")
 
-        nzpy.connect.assert_not_called()
+        ibm_db_dbi.connect.assert_not_called()
         connection.handle
-        nzpy.connect.assert_called_once_with(
-            dbname="netezza",
+        ibm_db_dbi.connect.assert_called_once_with(
+            dbname="db2",
             user="root",
             host="thishostshouldnotexist",
             password="password",
-            port=5432,
+            port=50000,
             connect_timeout=10,
             sslmode="verify-ca",
             sslcert="service.crt",
@@ -295,19 +296,19 @@ class TestNetezzaAdapter(TestCase):
     @pytest.mark.skip(
         """Skipping. since dbt-ibm-netezza doesn't support search_path yet."""
     )
-    @mock.patch("dbt.adapters.db2.connections.nzpy")
-    def test_schema_with_space(self, nzpy):
+    @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi")
+    def test_schema_with_space(self, ibm_db):
         self.config.credentials = self.config.credentials.replace(search_path="test test")
         connection = self.adapter.acquire_connection("dummy")
 
-        nzpy.connect.assert_not_called()
+        ibm_db_dbi.connect.assert_not_called()
         connection.handle
-        nzpy.connect.assert_called_once_with(
-            dbname="netezza",
+        ibm_db_dbi.connect.assert_called_once_with(
+            dbname="db2",
             user="root",
             host="thishostshouldnotexist",
             password="password",
-            port=5432,
+            port=50000,
             connect_timeout=10,
             application_name="dbt",
             options="-c search_path=test\ test",  # noqa: [W605]
@@ -316,19 +317,19 @@ class TestNetezzaAdapter(TestCase):
     @pytest.mark.skip(
         """Skipping. since dbt-ibm-netezza doesn't support keepalives_idle yet."""
     )
-    @mock.patch("dbt.adapters.db2.connections.nzpy")
-    def test_set_zero_keepalive(self, nzpy):
+    @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi")
+    def test_set_zero_keepalive(self, ibm_db):
         self.config.credentials = self.config.credentials.replace(keepalives_idle=0)
         connection = self.adapter.acquire_connection("dummy")
 
-        nzpy.connect.assert_not_called()
+        ibm_db_dbi.connect.assert_not_called()
         connection.handle
-        nzpy.connect.assert_called_once_with(
+        ibm_db_dbi.connect.assert_called_once_with(
             dbname="netezza",
             user="root",
             host="thishostshouldnotexist",
             password="password",
-            port=5432,
+            port=50000,
             connect_timeout=10,
             application_name="dbt",
         )

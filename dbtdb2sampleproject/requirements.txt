@@ -12,7 +12,7 @@ dbt-adapters==1.13.2
 dbt-common==1.14.0
 dbt-core==1.9.2
 dbt-extractor==0.5.1
-dbt-ibm-db2 @ file:///Users/drangar/Desktop/Development/IBMCoreSW/nz-dbt
+dbt-ibm-db2 @ file:///Users/drangar/Desktop/Development/IBMCoreSW/db2-dbt
 dbt-semantic-interfaces==0.7.4
 dbt-tests-adapter==1.10.4
 deepdiff==7.0.1
@@ -31,7 +31,6 @@ mashumaro==3.14
 more-itertools==10.8.0
 msgpack==1.1.1
 networkx==3.5
-nzpy==1.17.1
 ordered-set==4.1.0
 packaging==25.0
 parsedatetime==2.6

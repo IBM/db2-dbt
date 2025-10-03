@@ -93,7 +93,7 @@ select * from {{ ref('models__view_disabled') }}
 
 models__with_bad_macro = """
 {{ some_macro(invalid='test') }}
-select 1 as id
+select 1 as id from SYSIBM.SYSDUMMY1
 """
 
 models__referencing_disabled_source = """

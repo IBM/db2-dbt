@@ -30,7 +30,6 @@ mashumaro==3.14
 more-itertools==10.8.0
 msgpack==1.1.1
 networkx==3.5
-nzpy==1.17.1
 ordered-set==4.1.0
 packaging==25.0
 parsedatetime==2.6

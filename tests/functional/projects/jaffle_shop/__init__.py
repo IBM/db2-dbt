@@ -19,13 +19,13 @@ class JaffleShop:
             "customers.sql": read_model("customers"),
             "docs.md": read_doc("docs"),
             "orders.sql": read_model("orders"),
-            "ignored_model1.sql": "select 1 as id",
-            "ignored_model2.sql": "select 1 as id",
+            "ignored_model1.sql": "select 1 as id from SYSIBM.SYSDUMMY1",
+            "ignored_model2.sql": "select 1 as id from SYSIBM.SYSDUMMY1",
             "overview.md": read_doc("overview"),
             "schema.yml": read_schema("jaffle_shop"),
             "ignore_folder": {
-                "model1.sql": "select 1 as id",
-                "model2.sql": "select 1 as id",
+                "model1.sql": "select 1 as id from SYSIBM.SYSDUMMY1",
+                "model2.sql": "select 1 as id from SYSIBM.SYSDUMMY1",
             },
             "staging": {
                 "schema.yml": read_schema("staging"),
