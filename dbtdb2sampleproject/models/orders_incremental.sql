@@ -3,23 +3,14 @@
     unique_key='order_id'
 ) }}
 
-WITH source_data AS (
-    SELECT
-        order_id,
-        customer_id,
-        order_date,
-        status
-    FROM
-        {{ ref('stg_orders') }}
-)
-
+-- DB2 doesn't handle CTEs well, so we'll use a simpler approach
 SELECT
     order_id,
     customer_id,
     order_date,
     status
 FROM
-    source_data
+    "TESTDB"."NEWUSER"."stg_orders"
 
 {% if is_incremental() %}
     -- Only include rows where `order_date` is greater than the max date in the existing table

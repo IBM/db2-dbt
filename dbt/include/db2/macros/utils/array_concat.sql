@@ -1,3 +1,3 @@
-{% macro netezza__array_concat(array_1, array_2) -%}
+{% macro db2__array_concat(array_1, array_2) -%}
     array_concat({{ array_1 }}, {{ array_2 }})
 {%- endmacro %}

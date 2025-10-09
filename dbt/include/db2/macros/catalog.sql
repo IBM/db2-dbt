@@ -1,30 +1,36 @@
 
-{% macro netezza__get_catalog(information_schema, schemas) -%}
+{% macro db2__get_catalog(information_schema, schemas) -%}
 
   {%- call statement('catalog', fetch_result=True) -%}
 
     select
-        _v_relation_column.database as table_database,
-        _v_objects.schema as table_schema,
-        _v_objects.objname as table_name,
-        _v_objects.objtype as table_type,
-        coalesce(_v_table.description, _v_view.description) as table_comment,
-        _v_relation_column.attname as column_name,
-        _v_relation_column.attnum as column_index,
-        format_type as column_type,
-        _v_relation_column.description as column_comment,
-        _v_relation_column.owner as table_owner
-    from 
-        _v_objects
-        left join _v_table on _v_table.objid = _v_objects.objid
-        left join _v_view on _v_view.objid = _v_objects.objid
-        inner join _v_relation_column on _v_relation_column.objid = _v_objects.objid
-    where 
-        _v_objects.objtype in ('TABLE', 'VIEW')
+        SYSCAT.COLUMNS.TABSCHEMA as table_database,
+        SYSCAT.COLUMNS.TABSCHEMA as table_schema,
+        SYSCAT.COLUMNS.TABNAME as table_name,
+        SYSCAT.TABLES.TYPE as table_type,
+        SYSCAT.TABLES.REMARKS as table_comment,
+        SYSCAT.COLUMNS.COLNAME as column_name,
+        SYSCAT.COLUMNS.COLNO as column_index,
+        SYSCAT.COLUMNS.TYPENAME as column_type,
+        SYSCAT.COLUMNS.REMARKS as column_comment,
+        SYSCAT.TABLES.OWNER as table_owner
+    from
+        SYSCAT.COLUMNS
+        join SYSCAT.TABLES on
+            SYSCAT.COLUMNS.TABSCHEMA = SYSCAT.TABLES.TABSCHEMA
+            and SYSCAT.COLUMNS.TABNAME = SYSCAT.TABLES.TABNAME
+    where
+        SYSCAT.TABLES.TYPE in ('T', 'V')
+        and SYSCAT.COLUMNS.TABSCHEMA in (
+            {%- for schema in schemas -%}
+                '{{ schema }}'
+                {%- if not loop.last %}, {% endif -%}
+            {%- endfor -%}
+        )
     order by
-        _v_objects.schema,
-        _v_objects.objname,
-        _v_relation_column.attnum
+        SYSCAT.COLUMNS.TABSCHEMA,
+        SYSCAT.COLUMNS.TABNAME,
+        SYSCAT.COLUMNS.COLNO
 
   {%- endcall -%}
 

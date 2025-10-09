@@ -1,4 +1,4 @@
-{% macro netezza__hash(field) -%}
+{% macro db2__hash(field) -%}
     lower(
         rawtohex(
             hash(

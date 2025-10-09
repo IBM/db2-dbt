@@ -1,4 +1,4 @@
-{% macro netezza__listagg(measure, delimiter_text, order_by_clause, limit_num) -%}
+{% macro db2__listagg(measure, delimiter_text, order_by_clause, limit_num) -%}
     {% if order_by_clause -%}
         {{ exceptions.raise_compiler_error("Netezza does not support 'order_by_clause' argument to group_concat") }}
     {% endif %}

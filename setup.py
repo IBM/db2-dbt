@@ -65,11 +65,16 @@ setup(
     description=description,
     long_description=long_description,
     long_description_content_type="text/markdown",
-    author="Abhishek Jog",
-    author_email="abhishekjog@gmail.com",
+    author="Deepak Rangarao",
+    author_email="drangar@gmail.com",
     url="https://github.com/IBM/nz-dbt",
-    packages=find_namespace_packages(include=["dbt", "dbt.*"]),
+    packages=["dbt.adapters.db2", "dbt.adapters"],
     include_package_data=True,
+        entry_points={
+        "dbt.adapters": [
+            "db2 = dbt.adapters.db2.impl:DB2Adapter"
+        ]
+    },
     install_requires=["dbt-core==1.9.2", "ibm_db==3.2.7"],
     zip_safe=False,
     classifiers=[

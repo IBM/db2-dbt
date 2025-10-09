@@ -1,4 +1,4 @@
-{% macro netezza__get_merge_sql(target, source, unique_key, dest_columns, predicates) -%}
+{% macro db2__get_merge_sql(target, source, unique_key, dest_columns, predicates) -%}
     {%- set predicates = [] if predicates is none else [] + predicates -%}
     {%- set dest_cols_name = dest_columns | map(attribute="name") -%}
     {% set quoted = [] %}

@@ -163,6 +163,28 @@ class DB2ConnectionManager(connection_cls):
     def cancel(self, connection):
         """Attempt to cancel ongoing query"""
         connection.handle.close()
+        
+    def begin(self):
+        """Override to handle DB2-specific transaction behavior"""
+        connection = self.get_thread_connection()
+        if connection.transaction_open is True:
+            logger.debug('Connection is already in a transaction')
+            return
+            
+        logger.debug('Beginning a new transaction')
+        connection.transaction_open = True
+        # DB2 doesn't need an explicit BEGIN statement
+        
+    def commit(self):
+        """Override to handle DB2-specific transaction behavior"""
+        connection = self.get_thread_connection()
+        if connection.transaction_open is False:
+            logger.debug('No transaction was open, nothing to commit')
+            return
+            
+        logger.debug('Committing transaction')
+        connection.handle.commit()
+        connection.transaction_open = False
 
     @classmethod
     def get_credentials(cls, credentials):
@@ -202,6 +224,11 @@ class DB2ConnectionManager(connection_cls):
                 if sql.strip().lower() == 'select 1 as id':
                     logger.debug("Detected debug query, modifying for DB2 syntax")
                     sql = "SELECT 1 FROM SYSIBM.SYSDUMMY1"
+                
+                # Check if the SQL starts with BEGIN
+                if sql.strip().upper().startswith('BEGIN'):
+                    logger.debug("Detected BEGIN statement, removing it")
+                    sql = sql.strip()[5:].strip()
             else:
                 error_msg = f"Connection handle is invalid or missing cursor method. Handle type: {type(connection.handle)}"
                 logger.error(error_msg)
@@ -248,6 +275,11 @@ class DB2ConnectionManager(connection_cls):
         if sql.strip().lower() == 'select 1 as id':
             logger.debug("Detected debug query in execute, modifying for DB2 syntax")
             sql = "SELECT 1 FROM SYSIBM.SYSDUMMY1"
+        
+        # Check if the SQL starts with BEGIN
+        if sql.strip().upper().startswith('BEGIN'):
+            logger.debug("Detected BEGIN statement in execute, removing it")
+            sql = sql.strip()[5:].strip()
         
         try:
             connection, cursor = self.add_query(sql, auto_begin)
