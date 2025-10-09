@@ -96,6 +96,10 @@ class DB2Adapter(SQLAdapter):
         relations: List[BaseRelation] = []
         quote_policy = {"database": True, "schema": True, "identifier": True}
 
+        # Handle case where results is None or doesn't have select method
+        if results is None or not hasattr(results, 'select'):
+            return relations
+
         columns = ["DATABASE", "SCHEMA", "NAME", "TYPE"]
         for _database, _schema, _identifier, _type in results.select(columns):
             try:
@@ -220,6 +224,19 @@ class DB2Adapter(SQLAdapter):
             return self.quote(column)
         else:
             return column
+            
+    @available
+    def quote_seed_value(self, value, quote_config: Optional[bool] = True) -> str:
+        """Quote a seed value for insertion into a SQL statement."""
+        if value is None:
+            return "NULL"
+        elif isinstance(value, bool):
+            return "TRUE" if value else "FALSE"
+        elif isinstance(value, (int, float)):
+            return str(value)
+        else:
+            value = str(value).replace("'", "''")
+            return f"'{value}'"
 
     # Override to search for uppercase keys in grants_table because DB2 always returns
     # uppercase keys and agate.Table.__get_item__ is case-sensitive

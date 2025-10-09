@@ -12,7 +12,7 @@ models__materialization_macro = """
 
 models__with_undefined_macro = """
 {{ dispatch_to_nowhere() }}
-select 1 as id
+select 1 as id from SYSIBM.SYSDUMMY1
 """
 
 models__local_macro = """
@@ -36,14 +36,14 @@ models__override_get_columns_macros = """
 {% if execute and result != 'a string' %}
   {% do exceptions.raise_compiler_error('overriding get_columns_in_relation failed') %}
 {% endif %}
-select 1 as id
+select 1 as id from SYSIBM.SYSDUMMY1
 """
 
 models__deprecated_adapter_macro_model = """
 {% if some_macro('foo', 'bar') != 'foobar' %}
   {% do exceptions.raise_compiler_error('invalid foobar') %}
 {% endif %}
-select 1 as id
+select 1 as id from SYSIBM.SYSDUMMY1
 """
 
 #

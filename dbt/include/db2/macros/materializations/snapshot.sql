@@ -1,4 +1,4 @@
-{% macro netezza__snapshot_hash_arguments(args) -%}
+{% macro db2__snapshot_hash_arguments(args) -%}
     lower(
       rawtohex(
         hash(
@@ -15,7 +15,7 @@
     )
 {%- endmacro %}
 
-{% macro netezza__snapshot_merge_sql(target, source, insert_cols) -%}
+{% macro db2__snapshot_merge_sql(target, source, insert_cols) -%}
     {%- set insert_cols_csv = insert_cols | join(', ') -%}
 
     update {{ target }}

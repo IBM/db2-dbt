@@ -1,3 +1,3 @@
-{% macro netezza__concat(fields) %}
+{% macro db2__concat(fields) %}
     {{ fields|join(' || ') }}
 {% endmacro %}

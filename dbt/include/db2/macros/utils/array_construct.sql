@@ -1,4 +1,4 @@
-{% macro netezza__array_instantiate(data_type) -%}
+{% macro db2__array_instantiate(data_type) -%}
     {% set type_int_mapping = {
     "INT1": 1,
     "INT2": 2,
@@ -16,9 +16,9 @@
     array({{ type_int_mapping[data_type] }})
 {%- endmacro %}
 
-{% macro netezza__array_construct(inputs, data_type) -%}
+{% macro db2__array_construct(inputs, data_type) -%}
     {% if inputs|length == 0 %}
-        {{netezza__array_instantiate(data_type)}}
+        {{db2__array_instantiate(data_type)}}
     {% else %}
         {{array_append(array_construct(inputs[:-1]), inputs[-1])}}
     {% endif %}

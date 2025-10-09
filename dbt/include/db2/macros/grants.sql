@@ -1,4 +1,4 @@
-{% macro netezza__get_show_grant_sql(relation) %}
+{% macro db2__get_show_grant_sql(relation) %}
     {% set privilege_lookup = [
         {'wide_col_name': 'privilege_list',           'shift_bits': 0,  'privilege_type': 'list'},
         {'wide_col_name': 'privilege_select',         'shift_bits': 1,  'privilege_type': 'select'},
@@ -53,10 +53,10 @@
         privilege_type is not null
 {% endmacro %}
 
-{% macro netezza__get_grant_sql(relation, privilege, grantee) %}
+{% macro db2__get_grant_sql(relation, privilege, grantee) %}
     grant {{ privilege }} on {{ relation }} to {{ grantee|join(', ') }}
 {% endmacro %}
 
-{% macro netezza__get_revoke_sql(relation, privilege, grantee) %}
+{% macro db2__get_revoke_sql(relation, privilege, grantee) %}
     revoke {{ privilege }} on {{ relation }} from {{ grantee|join(', ') }}
 {% endmacro %}

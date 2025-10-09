@@ -8,9 +8,9 @@ from dbt.contracts.files import FileHash
 from dbt.contracts.graph.manifest import ManifestStateCheck
 from dbt.task.debug import DebugTask
 from dbt_common.exceptions import DbtConfigError
-from nzpy import DatabaseError, Connection
+from ibm_db_dbi import DatabaseError, Connection
 
-from dbt.adapters.db2 import Plugin as NetezzaPlugin, NetezzaAdapter
+from dbt.adapters.db2 import Plugin as DB2Plugin, DB2AdapterAdapter
 from tests.unit.utils import (
     clear_plugin,
     config_from_parts_or_dicts,
@@ -22,12 +22,12 @@ from tests.unit.utils import (
 class TestNetezzaConnection(TestCase):
     def setUp(self):
         self.target_dict = {
-            "type": "netezza",
+            "type": "db2",
             "dbname": "testdbt",
             "user": "root",
             "host": "thishostshouldnotexist",
             "pass": "password",
-            "port": 5432,
+            "port": 50000,
             "schema": "public",
         }
 
@@ -55,8 +55,8 @@ class TestNetezzaConnection(TestCase):
         self.handle = mock.MagicMock(spec=Connection)
         self.cursor = self.handle.cursor.return_value
         self.mock_execute = self.cursor.execute
-        self.patcher = mock.patch("dbt.adapters.db2.connections.nzpy")
-        self.nzpy = self.patcher.start()
+        self.patcher = mock.patch("dbt.adapters.db2.connections.ibm_db_dbi")
+        self.ibm_db = self.patcher.start()
 
         # Create the Manifest.state_check patcher
         @mock.patch("dbt.parser.manifest.ManifestLoader.build_manifest_state_check")
@@ -74,8 +74,8 @@ class TestNetezzaConnection(TestCase):
         self.mock_state_check = self.load_state_check.start()
         self.mock_state_check.side_effect = _mock_state_check
 
-        self.nzpy.connect.return_value = self.handle
-        self.adapter = NetezzaAdapter(self.config, self.mp_context)
+        self.ibm_db.connect.return_value = self.handle
+        self.adapter = DB2Adapter(self.config, self.mp_context)
         self.adapter.set_macro_resolver(load_internal_manifest_macros(self.config))
         self.adapter.set_macro_context_generator(generate_runtime_macro_context)
         self.adapter.connections.set_query_header(
@@ -176,7 +176,7 @@ class TestNetezzaConnection(TestCase):
     )
     def test_debug_connection_ok(self):
         DebugTask.validate_connection(self.target_dict)
-        self.mock_execute.assert_has_calls([mock.call("/* dbt */\nselect 1 as id", None)])
+        self.mock_execute.assert_has_calls([mock.call("/* dbt */\nselect 1 as id from SYSIBM.SYSDUMMY1", None)])
 
     @pytest.mark.skip(
         """Skipping. Test NA since there's no validation in dbt core."""
@@ -197,7 +197,7 @@ class TestNetezzaConnection(TestCase):
         self.mock_execute.side_effect = DatabaseError()
         with self.assertRaises(DbtConfigError):
             DebugTask.validate_connection(self.target_dict)
-        self.mock_execute.assert_has_calls([mock.call("/* dbt */\nselect 1 as id", None)])
+        self.mock_execute.assert_has_calls([mock.call("/* dbt */\nselect 1 as id from SYSIBM.SYSDUMMY1", None)])
 
     def test_dbname_verification_is_case_insensitive(self):
         # Override adapter settings from setUp()

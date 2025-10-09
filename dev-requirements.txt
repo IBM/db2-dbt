@@ -27,5 +27,4 @@ types-pytz~=2023.3
 types-requests~=2.31
 twine~=4.0
 wheel~=0.41
-nzpy==1.17.1
 PyYAML==6.0.1

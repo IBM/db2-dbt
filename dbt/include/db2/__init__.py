@@ -1,2 +1,3 @@
 import os
-PACKAGE_PATH = os.path.dirname(__file__)
+
+PACKAGE_PATH = os.path.abspath(os.path.dirname(__file__))

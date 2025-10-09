@@ -2,14 +2,14 @@ version: 2
 
 sources:
   - name: sample_source
-    database: sampledb
-    schema: sampleschema
+    database: TESTDB
+    schema: NEWUSER
     tables:
       - name: ordrs
-        identifier: ORDERS
+        identifier: raw_orders
 
       - name: cust
-        identifier: CUSTOMERS
+        identifier: raw_customers
 
       - name: payments
-        identifier: PAYMENTS
+        identifier: raw_payments

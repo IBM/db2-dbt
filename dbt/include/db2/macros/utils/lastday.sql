@@ -1,4 +1,4 @@
-{% macro netezza__last_day(date, datepart) -%}
+{% macro db2__last_day(date, datepart) -%}
     {% if datepart == 'year' %}
         add_months({{date}} - extract(doy from {{date}}), 12)
     {% elif datepart == 'quarter' %}

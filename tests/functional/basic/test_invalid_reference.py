@@ -10,7 +10,7 @@ select * from {{ ref(model) }}
 
 
 model_sql = """
-select 1 as id
+select 1 as id from SYSIBM.SYSDUMMY1
 """
 
 

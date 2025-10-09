@@ -1,0 +1,11 @@
+name: db2_test_project
+version: '1.0'
+config-version: 2
+
+profile: db2_test  # Must match your profile name in ~/.dbt/profiles.yml
+
+model-paths: ["models"]
+
+models:
+  db2_test_project:
+    +materialized: view
