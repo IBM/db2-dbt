@@ -136,3 +136,5 @@ dbtdb2sampleproject/target/
 dbtdb2sampleproject/dbt_packages/
 dbtdb2sampleproject/logs/
 dbtdb2sampleproject/DS_Store
+dbtenv/
+~/.dbt/profiles.yml

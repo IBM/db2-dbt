@@ -54,7 +54,7 @@ def _get_dbt_core_version():
     return f"{minor}{pre}"
 
 
-package_name = "dbt-ibm-db2"
+package_name = "dbt-db2"
 package_version = "1.0.5"
 dbt_core_version = _get_dbt_core_version()
 description = """The IBM Db2 adapter plugin for dbt"""
@@ -68,7 +68,7 @@ setup(
     author="Deepak Rangarao",
     author_email="drangar@gmail.com",
     url="https://github.com/IBM/nz-dbt",
-    packages=["dbt.adapters.db2", "dbt.adapters"],
+    packages=find_namespace_packages(include=["dbt", "dbt.*"]),
     include_package_data=True,
         entry_points={
         "dbt.adapters": [
