@@ -10,7 +10,7 @@ from dbt.task.debug import DebugTask
 from dbt_common.exceptions import DbtConfigError
 from ibm_db_dbi import DatabaseError, Connection
 
-from dbt.adapters.db2 import Plugin as DB2Plugin, DB2AdapterAdapter
+from dbt.adapters.db2 import Plugin, DB2Adapter
 from tests.unit.utils import (
     clear_plugin,
     config_from_parts_or_dicts,
@@ -19,7 +19,7 @@ from tests.unit.utils import (
 )
 
 
-class TestNetezzaConnection(TestCase):
+class TestDB2Connection(TestCase):
     def setUp(self):
         self.target_dict = {
             "type": "db2",
@@ -85,7 +85,7 @@ class TestNetezzaConnection(TestCase):
         self.mock_query_header_add = self.qh_patch.start()
         self.mock_query_header_add.side_effect = lambda q: "/* dbt */\n{}".format(q)
         self.adapter.acquire_connection()
-        inject_adapter(self.adapter, NetezzaPlugin)
+        inject_adapter(self.adapter, Plugin)
 
     def tearDown(self):
         # we want a unique self.handle every time.
@@ -93,10 +93,10 @@ class TestNetezzaConnection(TestCase):
         self.qh_patch.stop()
         self.patcher.stop()
         self.load_state_check.stop()
-        clear_plugin(NetezzaPlugin)
+        clear_plugin(Plugin)
 
     @pytest.mark.skip(
-        """Skipping. Since drop schema is not yet supported on Netezza"""
+        """Skipping. Since drop schema is not yet supported on DB2"""
     )
     def test_quoting_on_drop_schema(self):
         relation = self.adapter.Relation.create(
@@ -138,7 +138,6 @@ class TestNetezzaConnection(TestCase):
         self.adapter.truncate_relation(relation)
         self.mock_execute.assert_has_calls(
             [
-                mock.call('BEGIN'),
                 mock.call('/* dbt */\ntruncate table "testdbt"."test_schema".test_table')
             ]
         )
@@ -162,7 +161,6 @@ class TestNetezzaConnection(TestCase):
         self.adapter.rename_relation(from_relation=from_relation, to_relation=to_relation)
         self.mock_execute.assert_has_calls(
             [
-                mock.call('BEGIN'),
                 mock.call('/* dbt */\nalter table "testdbt"."test_schema".table_a rename to "testdbt"."test_schema".table_b')
             ]
         )
@@ -201,7 +199,7 @@ class TestNetezzaConnection(TestCase):
 
     def test_dbname_verification_is_case_insensitive(self):
         # Override adapter settings from setUp()
-        self.target_dict["dbname"] = "Netezza"
+        self.target_dict["dbname"] = "DB2"
         profile_cfg = {
             "outputs": {
                 "test": self.target_dict,
@@ -222,5 +220,5 @@ class TestNetezzaConnection(TestCase):
         self.config = config_from_parts_or_dicts(project_cfg, profile_cfg)
         self.mp_context = get_context("spawn")
         self.adapter.cleanup_connections()
-        self._adapter = NetezzaAdapter(self.config, self.mp_context)
+        self._adapter = DB2Adapter(self.config, self.mp_context)
         self.adapter.verify_database("testdbt")

@@ -11,7 +11,7 @@ from dbt.events.types import SettingUpProfile, InvalidProfileTemplateYAML
 from dbt_common.events.functions import fire_event
 from dbt.adapters.db2.et_options_parser import create_et_options
 
-class NetezzaInitTask(InitTask):
+class DB2InitTask(InitTask):
     def setup_profile(self, profile_name: str) -> None:
         """Set up a new profile for a project"""
         fire_event(SettingUpProfile())
@@ -29,7 +29,7 @@ class NetezzaInitTask(InitTask):
             except Exception:
                 fire_event(InvalidProfileTemplateYAML())
         adapter = self.ask_for_adapter_choice()
-        if adapter == 'netezza':
+        if adapter == 'db2':
             create_et_options('.')
         self.create_profile_from_target(adapter, profile_name=profile_name)
 
@@ -45,12 +45,12 @@ class NetezzaInitTask(InitTask):
 @p.vars
 @requires.postflight
 @requires.preflight
-def netezza_init(ctx, **kwargs):
-    """Initialize a new dbt project for netezza driver."""
+def db2_init(ctx, **kwargs):
+    """Initialize a new dbt project for DB2 driver."""
 
-    with NetezzaInitTask(ctx.obj["flags"]) as task:
+    with DB2InitTask(ctx.obj["flags"]) as task:
         results = task.run()
         success = task.interpret_results(results)
     return results, success
 
-init = netezza_init
+init = db2_init
