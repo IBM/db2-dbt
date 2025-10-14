@@ -20,10 +20,10 @@ def dbt_profile_data(unique_schema):
         "test": {
             "outputs": {
                 "default": {
-                    "type": "netezza",
+                    "type": "db2",
                     "threads": 4,
-                    "host": "ssnzlite1.fyre.ibm.com",
-                    "port": 5480,
+                    "host": "localhost",
+                    "port": 50000,
                     "user": "ADMIN",
                     "pass": "password",
                     "dbname": "TESTDBTINTEGRATION",

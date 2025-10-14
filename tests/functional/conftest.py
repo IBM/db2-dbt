@@ -13,11 +13,12 @@ def dbt_integration_project():
 @pytest.fixture(scope="class")
 def dbt_profile_target():
     return {
-        "type": "netezza",
-        "host": os.getenv("NZ_TEST_HOST", "hostname"),
-        "port": int(os.getenv("NZ_TEST_PORT", 5480)),
-        "user": os.getenv("NZ_TEST_USER", "ADMIN"),
-        "pass": os.getenv("NZ_TEST_PASS", "password"),
-        "dbname": os.getenv("NZ_TEST_DATABASE", "TESTDBTINTEGRATION"),
-        "threads": int(os.getenv("NZ_TEST_THREADS", 4)),
+        "type": "db2",
+        "host": os.getenv("DBT_TEST_DB2_HOST", "hostname"),
+        "port": int(os.getenv("DBT_TEST_DB2_PORT", 50000)),
+        "user": os.getenv("DBT_TEST_DB2_USER", "ADMIN"),
+        "pass": os.getenv("DBT_TEST_DB2_PASS", "password"),
+        "dbname": os.getenv("DBT_TEST_DB2_DB", "TESTDBTINTEGRATION"),
+        "schema": os.getenv("DBT_TEST_DB2_SCHEMA", "ADMIN"),
+        "threads": int(os.getenv("DBT_TEST_DB2_THREADS", 4)),
     }

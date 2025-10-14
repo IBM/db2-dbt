@@ -1,6 +1,6 @@
 {% macro db2__compile_sql(sql) %}
   {# This macro is used by dbt to compile SQL #}
-  {# We need to override it to handle DB2's limitations with CTEs #}
+  {# We need to override it to handle DB2s limitations with CTEs #}
   
   {# Extract the final SELECT statement from the SQL if it has CTEs #}
   {% set sql_no_ctes = sql %}
