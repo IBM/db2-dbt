@@ -75,7 +75,7 @@ setup(
             "db2 = dbt.adapters.db2.impl:DB2Adapter"
         ]
     },
-    install_requires=["dbt-core==1.9.2", "ibm_db==3.2.7"],
+    install_requires=["dbt-core~=1.11.0", "ibm_db==3.2.8"],
     zip_safe=False,
     classifiers=[
         "Operating System :: Microsoft :: Windows",

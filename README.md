@@ -1,183 +1,302 @@
-# dbt-ibm-netezza
+# dbt-db2
 
-The `dbt-ibm-netezza` package contains all of the code required to make `dbt` operate on a Netezza database. For more information on using dbt, consult [their docs](https://docs.getdbt.com/docs).
+The `dbt-db2` adapter allows dbt to work with IBM DB2 databases. This adapter uses the `ibm_db` Python driver to connect to DB2 databases.
 
+## Features
 
-### Performance Optimizations
+- ✅ Full dbt support for IBM DB2
+- ✅ Table and view materializations
+- ✅ Incremental models (merge and delete+insert strategies)
+- ✅ Seeds
+- ✅ Snapshots
+- ✅ Tests and documentation
+- ✅ Grants management
 
-Tables in Netezza have an optimization to improve query performance called distribution keys. Supplying these values as model-level configurations apply the corresponding settings in the generated `CREATE TABLE` DDL. Note that these settings will have no effect for models set to view or ephemeral models.
+## Requirements
 
-- `dist` can take a setting of `random`, a single column as a string (e.g. `visit_key`), or a list of columns (e.g. `['visit_key','visit_event_key']`)
+- Python 3.9 - 3.13 (Python 3.14 not yet supported due to dependency issues)
+- dbt-core ~= 1.8.0
+- ibm_db == 3.2.8
+- IBM DB2 database (LUW, z/OS, or iSeries)
 
-Dist keys can be added to the `{{ config(...) }}` block for a specific model `.sql` file, e.g.:
+## Installation
 
-```sql
--- Example with one sort key
-{{ config(materialized='table', dist='visit_key') }}
+### Install from source
 
-select ...
-
-
--- Example with multiple sort keys
-{{ config(materialized='table', dist=['visit_key', 'visit_event_key']) }}
-
-select ...
+```bash
+git clone <repository-url>
+cd db2-dbt
+pip install -e .
 ```
 
-Dist keys can also be added to the `dbt_project.yml` file config to set a default, e.g. 
+### Install from PyPI (when available)
+
+```bash
+pip install dbt-db2
+```
+
+## Configuration
+
+### profiles.yml
+
+Configure your DB2 connection in `~/.dbt/profiles.yml`:
 
 ```yaml
-# dbt_project.yml
-name: "my_project"
-version: "0.0.1"
-config-version: 2
-
-...
-
-models:
-  my_project:
-    +materialized: table
-    +dist: random
-```
-
-# Testing Sample dbt project
-
-## Installation Guide
-
-To install all the dependencies for the tool, follow these steps:
-
-1. Navigate to the `nz-dbt` directory:
-
-    ```bash
-    cd nz-dbt
-    ```
-
-2. Install `dbt-ibm-netezza` using the command `pip install .`
-
-Initialize a new dbt project using command `dbt init` and provide all the informantion prompted like project_name, hostname, database, etc. The details you put are case-sensitive.
-
-This will create the configuration of your project inside the file with path
-
-```
-$HOME/.dbt/profiles.yml
-```
-
-The configuration should look like:
-
-```yaml
-dbtnzsampleproject:
+my_db2_project:
   outputs:
     dev:
-      database: '"sampledb"'
-      host: my_host
-      password: 
-      port: 5480
-      schema: sampleschema
-      threads: 1
-      type: netezza
-      user: '"ADMIN"'
+      type: db2
+      host: your-db2-host
+      port: 50000  # Default DB2 port
+      database: your_database
+      schema: your_schema
+      username: your_username
+      password: your_password
+      threads: 4
   target: dev
 ```
 
-> **Note:** 
-> 
-> We provide the database name and the user name inside double quotes in order to make it case sensitive. Other objects like schema is also case sensitive.
+### Connection Parameters
 
-Check your dbt connection with netezza using the command :
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| `type` | Yes | - | Must be `db2` |
+| `host` | Yes* | - | DB2 server hostname |
+| `port` | No | 50000 | DB2 server port |
+| `database` | Yes | - | Database name |
+| `schema` | Yes | - | Schema name |
+| `username` | Yes | - | DB2 username |
+| `password` | Yes | - | DB2 password |
+| `dsn` | No | - | Optional DSN connection string |
+| `threads` | No | 1 | Number of threads for parallel execution |
+| `retries` | No | 1 | Number of connection retry attempts |
+
+*Not required if using `dsn`
+
+### Using DSN Connection
+
+Alternatively, you can use a DSN (Data Source Name):
+
+```yaml
+my_db2_project:
+  outputs:
+    dev:
+      type: db2
+      dsn: MY_DB2_DSN
+      username: your_username
+      password: your_password
+      schema: your_schema
+      threads: 4
+  target: dev
+```
+
+## DB2-Specific Considerations
+
+### Case Sensitivity
+
+DB2 uppercases unquoted identifiers by default. The adapter handles this automatically, but be aware:
+
+- Unquoted table/column names will be uppercased
+- Use quotes in your SQL to preserve case: `"MyTable"` vs `MYTABLE`
+
+### Data Types
+
+The adapter maps dbt data types to DB2 types:
+
+| dbt Type | DB2 Type |
+|----------|----------|
+| string | VARCHAR |
+| text | VARCHAR(max_length) |
+| integer | INTEGER |
+| bigint | BIGINT |
+| float | FLOAT |
+| numeric | DECIMAL |
+| boolean | BOOLEAN |
+| timestamp | TIMESTAMP |
+| date | DATE |
+| time | TIME |
+
+### Incremental Models
+
+Supported incremental strategies:
+
+1. **merge** (default) - Uses MERGE statement
+2. **delete+insert** - Deletes matching records then inserts
+
+Example:
+
+```sql
+{{
+  config(
+    materialized='incremental',
+    unique_key='id',
+    incremental_strategy='merge'
+  )
+}}
+
+SELECT * FROM source_table
+{% if is_incremental() %}
+WHERE updated_at > (SELECT MAX(updated_at) FROM {{ this }})
+{% endif %}
+```
+
+## Getting Started
+
+### 1. Initialize a dbt Project
+
 ```bash
+dbt init my_db2_project
+```
+
+### 2. Configure Connection
+
+Edit `~/.dbt/profiles.yml` with your DB2 connection details.
+
+### 3. Test Connection
+
+```bash
+cd my_db2_project
 dbt debug
 ```
 
-Create the tables into your db using the info in the `datainsertion.sql` file.
+### 4. Create Models
 
-> **Note:** 
-> 
-> Take note that we would be using the names of the tables created into our database as it is ,i.e., the tables created would be created as CUSTOMERS, ORDERS and PAYMENTS so we would use names of these objects in dbt as it is.
+Create SQL files in the `models/` directory:
 
-We can load the data into our tables using the `dbt seed command` , it would insert the data from all the seed files into tables created with the name of the seed files.
-
-The `et_options.yml` file created after the initialization of a dbt project, is crucial for configuring the parameters for inserting data from an external file into your table.
-
-> **Note:** 
-> 
-> The `et_options.yml` file allows you to specify the parameters for inserting data from an external source according to your needs. For detailed information on how to configure the `et_options.yml` file and the available options, refer to the Netezza documentation here: [Netezza Option Details](https://www.ibm.com/docs/en/netezza?topic=options-option-details).
-
-Make sure your `et_options.yml` file is correctly set up in your dbt project folder before running the `dbt seed` command. This ensures that data is inserted into your tables accurately as specified in the external file.
-
-The file should look like:
-
-```yaml
-- !ETOptions
-    SkipRows: "1"
-    Delimiter: "','"
-    DateDelim: "'-'"
-    MaxErrors: " 0 "
+```sql
+-- models/my_model.sql
+SELECT
+    customer_id,
+    customer_name,
+    order_date
+FROM {{ source('raw', 'orders') }}
+WHERE order_date >= CURRENT_DATE - 30 DAYS
 ```
 
-## Working with dbt Models
-
-### Creating Models
-
-You can create models as specified in our sample project. Models define the transformations and logic for your data.
-
-### Running Models
-
-To execute your dbt models, use the `dbt run` command. This command will run all the models defined in your dbt project.
+### 5. Run Models
 
 ```bash
 dbt run
 ```
 
-#### Running Specific Models
+### 6. Test Models
 
-If you want to run a specific model instead of all models, you can specify it using the `--select` option. For example, to run the `stg_customers model`, use:
-```bash
-dbt run --select stg_customers
-```
-
-### Testing Models
-
-After running your models, it is important to test the outputs to ensure they meet your expectations. Use the dbt test command to run all the tests defined in your dbt project.
-
-After running the models we can run the `dbt test` command to test the output of the models.
 ```bash
 dbt test
 ```
 
-#### Testing Specific Models
-To test a specific model, you can use the `--select` option with the dbt test command. For example, to test the `stg_payments` model, use:
+## Common Commands
 
 ```bash
-dbt test --select stg_payments
-```
+# Run all models
+dbt run
 
-We can generate docs using command:
-```
+# Run specific model
+dbt run --select my_model
+
+# Run models and downstream dependencies
+dbt run --select my_model+
+
+# Test all models
+dbt test
+
+# Generate documentation
 dbt docs generate
-```
 
-We can view the documentation for the project using the command:
-```
+# Serve documentation
 dbt docs serve
+
+# Create snapshots
+dbt snapshot
+
+# Load seed data
+dbt seed
 ```
 
-## Using dbt Snapshot with Netezza
+## Supported dbt Features
 
-We can utilize the snapshot functionality provided by dbt to track historical changes to our data. However, to use this feature, you first need to install the SQL Extension Toolkit for Netezza on your database.
+| Feature | Supported |
+|---------|-----------|
+| Table materialization | ✅ Yes |
+| View materialization | ✅ Yes |
+| Incremental materialization | ✅ Yes |
+| Ephemeral materialization | ✅ Yes |
+| Seeds | ✅ Yes |
+| Snapshots | ✅ Yes |
+| Tests | ✅ Yes |
+| Documentation | ✅ Yes |
+| Sources | ✅ Yes |
+| Custom schemas | ✅ Yes |
+| Grants | ✅ Yes |
+| Constraints | ⚠️ Partial (NOT NULL enforced, others not enforced) |
 
-> **Note:** 
-> 
-> The SQL Extension Toolkit must be installed on the default `ADMIN` schema of your database. In this case, the database is `sampledb`. For detailed instructions on how to install the SQL Extension Toolkit, refer to the Netezza documentation here: [SQL Extension Toolkit Installation](https://www.ibm.com/docs/en/netezza?topic=analytics-sql-extensions-toolkit).
+## Troubleshooting
 
-Once the toolkit is installed, you can use the `dbt snapshot` command to capture historical data changes.
+### Connection Issues
 
-### Steps to Use `dbt snapshot`
-
-1. **Install SQL Extension Toolkit**:
-   Ensure the toolkit is installed on the `ADMIN` schema of `sampledb` as outlined in the provided documentation.
-
-2. **Run the `dbt snapshot` Command**:
-   After installation, you can proceed with running the `dbt snapshot` command to create snapshots of your data.
-
+1. **Verify DB2 is accessible**:
    ```bash
-   dbt snapshot
+   db2 connect to your_database user your_username
+   ```
+
+2. **Check firewall/network**: Ensure port 50000 (or your custom port) is open
+
+3. **Verify credentials**: Ensure username/password are correct
+
+### Python Version Issues
+
+If you encounter mashumaro serialization errors, ensure you're using Python 3.9-3.13 (not 3.14).
+
+### Driver Issues
+
+If `ibm_db` installation fails:
+
+```bash
+# On macOS
+brew install gcc
+
+# On Linux
+sudo apt-get install python3-dev gcc
+
+# Then reinstall
+pip install ibm_db==3.2.8
+```
+
+## Known Limitations
+
+1. **Python 3.14**: Not yet supported due to mashumaro library compatibility
+2. **Constraints**: CHECK, UNIQUE, PRIMARY KEY, and FOREIGN KEY constraints are defined but not enforced by DB2 in dbt context
+3. **Distribution keys**: Not applicable to DB2 (Netezza-specific feature)
+
+## Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests
+5. Submit a pull request
+
+## License
+
+[Add your license here]
+
+## Support
+
+For issues and questions:
+- GitHub Issues: [repository-url]/issues
+- dbt Community: https://community.getdbt.com/
+
+## Version History
+
+### 1.0.5
+- Updated ibm_db to 3.2.8
+- Updated dbt-core to ~1.8.0
+- Improved DB2 compatibility
+- Fixed connection handling
+
+## Related Projects
+
+- [dbt-core](https://github.com/dbt-labs/dbt-core)
+- [ibm_db Python driver](https://github.com/ibmdb/python-ibmdb)
