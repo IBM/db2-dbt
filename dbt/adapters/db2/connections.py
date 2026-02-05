@@ -33,6 +33,13 @@ class DB2Credentials(Credentials):
     host: Optional[str] = None
     port: Port = Port(5480)
     retries: int = 1
+    
+    # DB2 SSL/TLS parameters
+    security: Optional[str] = None  # 'SSL' to enable SSL/TLS
+    ssl_server_certificate: Optional[str] = None  # Path to server CA certificate
+    ssl_client_keystore: Optional[str] = None  # Path to client keystore database
+    ssl_client_keystash: Optional[str] = None  # Path to client keystash file
+    ssl_client_hostname_validation: Optional[bool] = None  # Enable hostname verification
 
     _ALIASES = {"dbname": "database", "user": "username", "pass": "password"}
 
@@ -135,7 +142,40 @@ class DB2ConnectionManager(connection_cls):
                         f"UID={credentials.username};"
                         f"PWD={credentials.password};"
                     )
-                    logger.debug(f"Connecting with connection string: {conn_str}")
+                    
+                    # Add DB2 SSL/TLS parameters if provided
+                    if credentials.security:
+                        # Enable SSL/TLS security
+                        if credentials.security.upper() == 'SSL':
+                            conn_str += "Security=SSL;"
+                            logger.debug("SSL/TLS security enabled")
+                        else:
+                            conn_str += f"Security={credentials.security};"
+                            logger.debug(f"Security mode: {credentials.security}")
+                    
+                    # Add SSL server certificate (CA certificate for verification)
+                    if credentials.ssl_server_certificate:
+                        conn_str += f"SSLServerCertificate={credentials.ssl_server_certificate};"
+                        logger.debug(f"SSL server certificate: {credentials.ssl_server_certificate}")
+                    
+                    # Add SSL client keystore database
+                    if credentials.ssl_client_keystore:
+                        conn_str += f"SSLClientKeystoredb={credentials.ssl_client_keystore};"
+                        logger.debug(f"SSL client keystore: {credentials.ssl_client_keystore}")
+                    
+                    # Add SSL client keystash file
+                    if credentials.ssl_client_keystash:
+                        conn_str += f"SSLClientKeystash={credentials.ssl_client_keystash};"
+                        logger.debug(f"SSL client keystash: {credentials.ssl_client_keystash}")
+                    
+                    # Add hostname verification if specified
+                    if credentials.ssl_client_hostname_validation is not None:
+                        # DB2 uses SSLClientHostnameValidation parameter
+                        validation_value = "true" if credentials.ssl_client_hostname_validation else "false"
+                        conn_str += f"SSLClientHostnameValidation={validation_value};"
+                        logger.debug(f"SSL hostname validation: {validation_value}")
+                    
+                    logger.debug(f"Connecting with connection string (SSL params hidden)")
                     conn = ibm_db_dbi.connect(conn_str, "", "")
                 
                 if not hasattr(conn, 'cursor'):

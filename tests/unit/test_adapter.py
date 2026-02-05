@@ -197,32 +197,39 @@ class TestDB2Adapter(TestCase):
         connection.handle
         mock_connect.assert_called_once()
 
-    @pytest.mark.skip(
-        """Skipping. since dbt-db2 doesn't support sslmode yet."""
-    )
     @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi.connect")
-    def test_sslmode(self, mock_connect):
-        self.config.credentials = self.config.credentials.replace(sslmode="require")
+    def test_security_ssl(self, mock_connect):
+        self.config.credentials = self.config.credentials.replace(security="SSL")
         connection = self.adapter.acquire_connection("dummy")
 
         mock_connect.assert_not_called()
         connection.handle
         mock_connect.assert_called_once()
+        
+        # Verify SSL parameter is in connection string
+        call_args = mock_connect.call_args[0][0]
+        assert "Security=SSL" in call_args
 
-    @pytest.mark.skip(
-        """Skipping. since dbt-db2 doesn't support sslmode yet."""
-    )
     @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi.connect")
     def test_ssl_parameters(self, mock_connect):
-        self.config.credentials = self.config.credentials.replace(sslmode="verify-ca")
-        self.config.credentials = self.config.credentials.replace(sslcert="service.crt")
-        self.config.credentials = self.config.credentials.replace(sslkey="service.key")
-        self.config.credentials = self.config.credentials.replace(sslrootcert="ca.crt")
+        self.config.credentials = self.config.credentials.replace(security="SSL")
+        self.config.credentials = self.config.credentials.replace(ssl_server_certificate="/etc/db2/ca.crt")
+        self.config.credentials = self.config.credentials.replace(ssl_client_keystore="/etc/db2/client.kdb")
+        self.config.credentials = self.config.credentials.replace(ssl_client_keystash="/etc/db2/client.sth")
+        self.config.credentials = self.config.credentials.replace(ssl_client_hostname_validation=True)
         connection = self.adapter.acquire_connection("dummy")
 
         mock_connect.assert_not_called()
         connection.handle
         mock_connect.assert_called_once()
+        
+        # Verify all SSL parameters are in connection string
+        call_args = mock_connect.call_args[0][0]
+        assert "Security=SSL" in call_args
+        assert "SSLServerCertificate=/etc/db2/ca.crt" in call_args
+        assert "SSLClientKeystoredb=/etc/db2/client.kdb" in call_args
+        assert "SSLClientKeystash=/etc/db2/client.sth" in call_args
+        assert "SSLClientHostnameValidation=true" in call_args
 
     @pytest.mark.skip(
         """Skipping. since dbt-db2 doesn't support search_path yet."""
