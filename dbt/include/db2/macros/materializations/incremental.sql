@@ -45,7 +45,7 @@
     {% endset %}
     {% do run_query(tmp_table_sql) %}
 
-    -- Use delete+insert strategy for incremental updates
+    -- Use MERGE strategy for incremental updates (DB2 native support)
     {% set dest_columns = adapter.get_columns_in_relation(target_relation) %}
     {% set dest_cols_csv = dest_columns | map(attribute='quoted') | join(', ') %}
 
@@ -53,35 +53,42 @@
       {% if unique_key is sequence and unique_key is not string %}
         {% set unique_key_match %}
           {% for key in unique_key %}
-            {{ target_relation }}.{{ key }} = {{ tmp_relation }}.{{ key }}
-            {% if not loop.last %} and {% endif %}
+            target.{{ key }} = source.{{ key }}
+            {% if not loop.last %} AND {% endif %}
           {% endfor %}
         {% endset %}
       {% else %}
         {% set unique_key_match %}
-          {{ target_relation }}.{{ unique_key }} = {{ tmp_relation }}.{{ unique_key }}
+          target.{{ unique_key }} = source.{{ unique_key }}
         {% endset %}
       {% endif %}
 
       {% set build_sql %}
-        -- Delete records that will be updated
-        delete from {{ target_relation }}
-        where exists (
-          select 1 from {{ tmp_relation }}
-          where {{ unique_key_match }}
-        );
-        
-        -- Insert new/updated records
-        insert into {{ target_relation }} ({{ dest_cols_csv }})
-        select {{ dest_cols_csv }}
-        from {{ tmp_relation }};
+        -- Use DB2 MERGE for atomic upsert operation
+        MERGE INTO {{ target_relation }} AS target
+        USING {{ tmp_relation }} AS source
+        ON {{ unique_key_match }}
+        WHEN MATCHED THEN
+          UPDATE SET
+          {% for col in dest_columns %}
+            {{ col.quoted }} = source.{{ col.quoted }}
+            {% if not loop.last %}, {% endif %}
+          {% endfor %}
+        WHEN NOT MATCHED THEN
+          INSERT ({{ dest_cols_csv }})
+          VALUES (
+            {% for col in dest_columns %}
+              source.{{ col.quoted }}
+              {% if not loop.last %}, {% endif %}
+            {% endfor %}
+          )
       {% endset %}
     {% else %}
       {% set build_sql %}
         -- Insert all records (no unique key specified)
-        insert into {{ target_relation }} ({{ dest_cols_csv }})
-        select {{ dest_cols_csv }}
-        from {{ tmp_relation }};
+        INSERT INTO {{ target_relation }} ({{ dest_cols_csv }})
+        SELECT {{ dest_cols_csv }}
+        FROM {{ tmp_relation }}
       {% endset %}
     {% endif %}
   {% endif %}

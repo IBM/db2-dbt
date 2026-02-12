@@ -31,7 +31,7 @@ class DB2Credentials(Credentials):
     database: Optional[str] = None
     schema: Optional[str] = None
     host: Optional[str] = None
-    port: Port = Port(5480)
+    port: Port = Port(50000)
     retries: int = 1
     
     # DB2 SSL/TLS parameters
@@ -201,8 +201,21 @@ class DB2ConnectionManager(connection_cls):
         return connection
 
     def cancel(self, connection):
-        """Attempt to cancel ongoing query"""
-        connection.handle.close()
+        """
+        Gets a connection object and attempts to cancel any ongoing queries.
+        """
+        connection_name = connection.name
+        db2_connection = connection.handle
+        
+        logger.info("Cancelling query '{}' ".format(connection_name))
+        
+        try:
+            db2_connection.close()
+        except Exception as e:
+            logger.error('Error closing connection for cancel request')
+            raise Exception(str(e))
+        
+        logger.info("Canceled query '{}'".format(connection_name))
         
     def begin(self):
         """Override to handle DB2-specific transaction behavior"""

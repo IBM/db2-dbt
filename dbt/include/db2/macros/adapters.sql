@@ -77,13 +77,32 @@
 {%- endmacro %}
 
 {% macro db2__list_schemas(database) -%}
-  {# Return an empty list for now to get past this error #}
-  {{ return([]) }}
+  {% call statement('list_schemas', fetch_result=True, auto_begin=False) %}
+    SELECT SCHEMANAME as name
+    FROM SYSCAT.SCHEMATA
+    WHERE SCHEMANAME NOT LIKE 'SYS%'
+      AND SCHEMANAME NOT IN ('NULLID', 'SQLJ', 'ERRORSCHEMA')
+    ORDER BY SCHEMANAME
+  {% endcall %}
+  {{ return(load_result('list_schemas').table) }}
 {% endmacro %}
 
 {% macro db2__list_relations_without_caching(schema_relation) %}
-  {# Return an empty list for now to get past this error #}
-  {{ return([]) }}
+  {% call statement('list_relations_without_caching', fetch_result=True) -%}
+    SELECT
+      TABNAME as name,
+      TABSCHEMA as schema,
+      CASE TYPE
+        WHEN 'T' THEN 'table'
+        WHEN 'V' THEN 'view'
+        ELSE 'table'
+      END as type
+    FROM SYSCAT.TABLES
+    WHERE TABSCHEMA = '{{ schema_relation.schema | upper }}'
+      AND TYPE IN ('T', 'V')
+    ORDER BY TABNAME
+  {%- endcall %}
+  {{ return(load_result('list_relations_without_caching').table) }}
 {% endmacro %}
 
 {% macro db2__drop_schema(relation) -%}

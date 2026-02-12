@@ -17,21 +17,11 @@ prompts:
     hint: 'default schema that dbt will build objects in'
     default: ADMIN
   security:
-    hint: '[Optional] Security protocol: SSL (enable SSL)'
-    default: null
+    hint: '[Optional] Security protocol: SSL (enable SSL) - press Enter to skip'
+    default: ''
   ssl_server_certificate:
-    hint: '[Optional] Path to server CA certificate file for verification'
-    default: null
-  ssl_client_keystore:
-    hint: '[Optional] Path to client keystore database file'
-    default: null
-  ssl_client_keystash:
-    hint: '[Optional] Path to client keystash file'
-    default: null
-  ssl_client_hostname_validation:
-    hint: '[Optional] Enable hostname verification (true/false)'
-    type: 'bool'
-    default: null
+    hint: '[Optional] Path to server CA certificate file - press Enter to skip'
+    default: ''
   threads:
     hint: '1 or more'
     type: 'int'

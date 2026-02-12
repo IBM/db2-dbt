@@ -103,7 +103,7 @@ class TestDB2Adapter(TestCase):
             query_result = mock.MagicMock()
             add_query.return_value = (None, query_result)
             self.assertEqual(len(list(self.adapter.cancel_open_connections())), 1)
-            add_query.assert_called_once_with("select pg_terminate_backend(42)")
+            add_query.assert_called_once_with("FORCE APPLICATION (42)")
 
         master.handle.get_backend_pid.assert_not_called()
 
