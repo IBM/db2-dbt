@@ -297,3 +297,198 @@ class TestDB2Adapter(TestCase):
             self.assertEqual(tupled_catalog, {rows[0], rows[1], rows[3]})
 
         self.assertEqual(exceptions, [])
+
+    def test_default_port_is_50000(self):
+        """Test that default port is 50000 (DB2 standard), not 5480"""
+        from dbt.adapters.db2.connections import DB2Credentials
+        
+        creds = DB2Credentials(
+            database='testdb',
+            schema='testschema',
+            host='localhost',
+            username='testuser',
+            password='testpass'
+        )
+        
+        # Verify default port is 50000, not 5480
+        self.assertEqual(creds.port, 50000)
+
+    def test_credentials_type_is_db2(self):
+        """Test that credentials type is 'db2'"""
+        from dbt.adapters.db2.connections import DB2Credentials
+        
+        creds = DB2Credentials(
+            database='testdb',
+            schema='testschema',
+            host='localhost',
+            username='testuser',
+            password='testpass'
+        )
+        
+        self.assertEqual(creds.type, 'db2')
+
+    @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi.connect")
+    def test_connection_uses_correct_port(self, mock_connect):
+        """Test that connection string uses port 50000 by default"""
+        connection = self.adapter.acquire_connection("dummy")
+        
+        mock_connect.assert_not_called()
+        connection.handle
+        mock_connect.assert_called_once()
+        
+        # Get the connection string
+        call_args = mock_connect.call_args[0][0]
+        
+        # Verify it uses port 50000, not 5480
+        self.assertIn('PORT=50000', call_args)
+        self.assertNotIn('PORT=5480', call_args)
+
+    def test_datediff_uses_db2_functions(self):
+        """Test that datediff macro uses DB2 native functions, not PostgreSQL"""
+        import os
+        # Go up two levels from tests/unit/ to project root
+        macro_path = os.path.join(
+            os.path.dirname(__file__),
+            '..',
+            '..',
+            'dbt',
+            'include',
+            'db2',
+            'macros',
+            'utils',
+            'datediff.sql'
+        )
+        
+        with open(macro_path, 'r') as f:
+            macro_content = f.read()
+        
+        # Verify it uses DB2 functions
+        self.assertIn('YEAR(', macro_content)
+        self.assertIn('MONTH(', macro_content)
+        self.assertIn('DAYS(', macro_content)
+        
+        # Verify it does NOT use PostgreSQL functions
+        self.assertNotIn('date_part', macro_content.lower())
+        self.assertNotIn('::date', macro_content)
+
+    def test_dateadd_macro_exists(self):
+        """Test that dateadd macro exists and uses DB2 syntax"""
+        import os
+        # Go up two levels from tests/unit/ to project root
+        macro_path = os.path.join(
+            os.path.dirname(__file__),
+            '..',
+            '..',
+            'dbt',
+            'include',
+            'db2',
+            'macros',
+            'utils',
+            'dateadd.sql'
+        )
+        
+        # Verify file exists
+        self.assertTrue(os.path.exists(macro_path), "dateadd.sql macro should exist")
+        
+        with open(macro_path, 'r') as f:
+            macro_content = f.read()
+        
+        # Verify it uses DB2 date arithmetic
+        self.assertIn('db2__dateadd', macro_content)
+
+    def test_incremental_uses_merge(self):
+        """Test that incremental materialization uses MERGE, not DELETE+INSERT"""
+        import os
+        # Go up two levels from tests/unit/ to project root
+        macro_path = os.path.join(
+            os.path.dirname(__file__),
+            '..',
+            '..',
+            'dbt',
+            'include',
+            'db2',
+            'macros',
+            'materializations',
+            'incremental.sql'
+        )
+        
+        with open(macro_path, 'r') as f:
+            macro_content = f.read()
+        
+        # Verify it uses MERGE strategy
+        self.assertIn('MERGE', macro_content.upper())
+
+    def test_utility_macros_exist(self):
+        """Test that new utility macros exist"""
+        import os
+        # Go up two levels from tests/unit/ to project root
+        macros_dir = os.path.join(
+            os.path.dirname(__file__),
+            '..',
+            '..',
+            'dbt',
+            'include',
+            'db2',
+            'macros',
+            'utils'
+        )
+        
+        # Check that utility macros exist
+        expected_macros = [
+            'datediff.sql',
+            'dateadd.sql',
+            'current_timestamp.sql',
+            'length.sql',
+            'position.sql'
+        ]
+        
+        for macro_file in expected_macros:
+            macro_path = os.path.join(macros_dir, macro_file)
+            self.assertTrue(
+                os.path.exists(macro_path),
+                f"{macro_file} should exist in utils directory"
+            )
+
+    def test_adapters_macro_has_list_schemas(self):
+        """Test that adapters.sql implements list_schemas with SYSCAT.SCHEMATA"""
+        import os
+        # Go up two levels from tests/unit/ to project root
+        macro_path = os.path.join(
+            os.path.dirname(__file__),
+            '..',
+            '..',
+            'dbt',
+            'include',
+            'db2',
+            'macros',
+            'adapters.sql'
+        )
+        
+        with open(macro_path, 'r') as f:
+            macro_content = f.read()
+        
+        # Verify list_schemas is implemented
+        self.assertIn('db2__list_schemas', macro_content)
+        self.assertIn('SYSCAT.SCHEMATA', macro_content)
+
+    def test_adapters_macro_has_list_relations(self):
+        """Test that adapters.sql implements list_relations_without_caching with SYSCAT.TABLES"""
+        import os
+        # Go up two levels from tests/unit/ to project root
+        macro_path = os.path.join(
+            os.path.dirname(__file__),
+            '..',
+            '..',
+            'dbt',
+            'include',
+            'db2',
+            'macros',
+            'adapters.sql'
+        )
+        
+        with open(macro_path, 'r') as f:
+            macro_content = f.read()
+        
+        # Verify list_relations_without_caching is implemented
+        self.assertIn('db2__list_relations_without_caching', macro_content)
+        self.assertIn('SYSCAT.TABLES', macro_content)
