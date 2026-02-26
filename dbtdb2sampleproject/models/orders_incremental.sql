@@ -10,7 +10,7 @@ SELECT
     order_date,
     status
 FROM
-    "TESTDB"."NEWUSER"."stg_orders"
+    {{ ref('stg_orders') }}
 
 {% if is_incremental() %}
     -- Only include rows where `order_date` is greater than the max date in the existing table

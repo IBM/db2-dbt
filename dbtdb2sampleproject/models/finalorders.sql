@@ -13,8 +13,8 @@ select
 
     sum(p.amount) as amount
 
-from "TESTDB"."NEWUSER"."stg_orders" o
-left join "TESTDB"."NEWUSER"."stg_payments" p
+from {{ ref('stg_orders') }} o
+left join {{ ref('stg_payments') }} p
     on o.order_id = p.order_id
 group by
     o.order_id,

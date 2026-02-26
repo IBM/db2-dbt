@@ -25,15 +25,17 @@ class DB2Path(Path):
 
 @dataclass
 class DB2QuotePolicy(Policy):
-    database: bool = True
-    schema: bool = True
-    identifier: bool = True
+    database: bool = False
+    schema: bool = False
+    identifier: bool = False
 
 
 @dataclass(frozen=True, eq=False, repr=False)
 class DB2Relation(BaseRelation):
     path: DB2Path
     quote_policy: Policy = field(default_factory=lambda: DB2QuotePolicy())
+    # DB2 uses two-part naming (schema.table), not three-part (database.schema.table)
+    include_policy: Policy = field(default_factory=lambda: Policy(database=False, schema=True, identifier=True))
 
     def _is_exactish_match(self, field: ComponentName, value: str) -> bool:
         # Remove requirement for dbt_created due to dbt bug with cache preservation

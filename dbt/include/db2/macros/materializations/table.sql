@@ -28,7 +28,7 @@
     create table {{ target_relation }}
     as (
       {{ sql_no_ctes }}
-    ) with data
+    ) WITH DATA
   {% endset %}
 
   -- Execute the SQL to create the table

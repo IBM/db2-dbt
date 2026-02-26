@@ -70,7 +70,7 @@ setup(
     url="https://github.com/IBM/nz-dbt",
     packages=find_namespace_packages(include=["dbt", "dbt.*"]),
     include_package_data=True,
-        entry_points={
+    entry_points={
         "dbt.adapters": [
             "db2 = dbt.adapters.db2.impl:DB2Adapter"
         ]

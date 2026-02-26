@@ -100,7 +100,19 @@ class DB2Adapter(SQLAdapter):
         if results is None or not hasattr(results, 'select'):
             return relations
 
-        columns = ["DATABASE", "SCHEMA", "NAME", "TYPE"]
+        # Get actual column names from results (case-insensitive match)
+        available_columns = [col.lower() for col in results.column_names]
+        columns = []
+        for expected_col in ["DATABASE", "SCHEMA", "NAME", "TYPE"]:
+            # Find matching column (case-insensitive)
+            matching_col = next((col for col in results.column_names
+                               if col.upper() == expected_col), None)
+            if matching_col:
+                columns.append(matching_col)
+            else:
+                # Fallback to expected column name
+                columns.append(expected_col)
+        
         for _database, _schema, _identifier, _type in results.select(columns):
             try:
                 _type = self.Relation.get_relation_type(_type.lower())

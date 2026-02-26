@@ -7,10 +7,10 @@ select
     max(o.order_date) as most_recent_order,
     count(o.order_id) as number_of_orders,
     sum(p.amount) as customer_lifetime_value
-from "TESTDB"."NEWUSER"."stg_customers" c
-left join "TESTDB"."NEWUSER"."stg_orders" o
+from {{ ref('stg_customers') }} c
+left join {{ ref('stg_orders') }} o
     on c.customer_id = o.customer_id
-left join "TESTDB"."NEWUSER"."stg_payments" p
+left join {{ ref('stg_payments') }} p
     on o.order_id = p.order_id
 group by
     c.customer_id,

@@ -23,7 +23,7 @@
       create table {{ target_relation }}
       as (
         {{ sql_no_ctes }}
-      ) with data
+      ) WITH DATA
     {% endset %}
   {% elif full_refresh_mode %}
     -- Drop and recreate the table if full refresh
@@ -32,7 +32,7 @@
       create table {{ target_relation }}
       as (
         {{ sql_no_ctes }}
-      ) with data
+      ) WITH DATA
     {% endset %}
   {% else %}
     -- Create a temporary table with the new data
@@ -41,7 +41,7 @@
       create table {{ tmp_relation }}
       as (
         {{ sql_no_ctes }}
-      ) with data
+      ) WITH DATA
     {% endset %}
     {% do run_query(tmp_table_sql) %}
 

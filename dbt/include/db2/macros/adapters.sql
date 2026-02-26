@@ -90,8 +90,9 @@
 {% macro db2__list_relations_without_caching(schema_relation) %}
   {% call statement('list_relations_without_caching', fetch_result=True) -%}
     SELECT
-      TABNAME as name,
+      CURRENT SERVER as database,
       TABSCHEMA as schema,
+      TABNAME as name,
       CASE TYPE
         WHEN 'T' THEN 'table'
         WHEN 'V' THEN 'view'
@@ -103,12 +104,6 @@
     ORDER BY TABNAME
   {%- endcall %}
   {{ return(load_result('list_relations_without_caching').table) }}
-{% endmacro %}
-
-{% macro db2__drop_schema(relation) -%}
-  {%- call statement('drop_schema') -%}
-    {{ exceptions.raise_compiler_error("dbt-ibm-db2 does not support drop_schema") }}
-  {% endcall %}
 {% endmacro %}
 
 {% macro db2__drop_relation(relation) -%}
