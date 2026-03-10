@@ -22,7 +22,7 @@
     {% set build_sql %}
       create table {{ target_relation }}
       as (
-        {{ sql_no_ctes }}
+        {{ sql }}
       ) WITH DATA
     {% endset %}
   {% elif full_refresh_mode %}
@@ -31,7 +31,7 @@
     {% set build_sql %}
       create table {{ target_relation }}
       as (
-        {{ sql_no_ctes }}
+        {{ sql }}
       ) WITH DATA
     {% endset %}
   {% else %}
@@ -40,7 +40,7 @@
     {% set tmp_table_sql %}
       create table {{ tmp_relation }}
       as (
-        {{ sql_no_ctes }}
+        {{ sql }}
       ) WITH DATA
     {% endset %}
     {% do run_query(tmp_table_sql) %}
@@ -95,6 +95,11 @@
 
   {% call statement('main') %}
     {{ build_sql }}
+  {% endcall %}
+
+  {# Commit the transaction to ensure the table is persisted #}
+  {% call statement('commit') %}
+    commit
   {% endcall %}
 
   {{ run_hooks(post_hooks) }}
