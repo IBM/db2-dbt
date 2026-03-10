@@ -137,4 +137,7 @@ dbtdb2sampleproject/dbt_packages/
 dbtdb2sampleproject/logs/
 dbtdb2sampleproject/DS_Store
 dbtenv/
+
+# ET Options configuration (user-specific, should not be in repo root)
+/et_options.yml
 ~/.dbt/profiles.yml

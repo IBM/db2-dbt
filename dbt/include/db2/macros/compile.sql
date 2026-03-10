@@ -14,5 +14,3 @@
   {# Return the simplified SQL #}
   {{ return(sql_no_ctes) }}
 {% endmacro %}
-
--- Made with Bob

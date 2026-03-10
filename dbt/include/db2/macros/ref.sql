@@ -10,5 +10,3 @@
         {{ custom_alias_name | trim }}
     {%- endif -%}
 {% endmacro %}
-
--- Made with Bob

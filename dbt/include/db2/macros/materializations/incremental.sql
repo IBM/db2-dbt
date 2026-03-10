@@ -106,5 +106,3 @@
 
   {{ return({'relations': [target_relation]}) }}
 {% endmaterialization %}
-
--- Made with Bob

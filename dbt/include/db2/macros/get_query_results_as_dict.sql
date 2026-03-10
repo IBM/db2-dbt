@@ -14,5 +14,3 @@
   {# Call the default implementation with the simplified SQL #}
   {{ return(default__get_query_results_as_dict(sql_no_ctes)) }}
 {% endmacro %}
-
--- Made with Bob
