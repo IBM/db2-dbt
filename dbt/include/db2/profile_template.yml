@@ -16,14 +16,7 @@ prompts:
   schema:
     hint: 'default schema that dbt will build objects in'
     default: ADMIN
-  security:
-    hint: '[Optional] Security protocol: SSL (enable SSL) - press Enter to skip'
-    default: ''
-  ssl_server_certificate:
-    hint: '[Optional] Path to server CA certificate file - press Enter to skip'
-    default: ''
   threads:
     hint: '1 or more'
     type: 'int'
     default: 8
-

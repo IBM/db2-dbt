@@ -150,6 +150,10 @@ class DB2Adapter(SQLAdapter):
     # Override to check if view exists before dropping because DB2 does not support
     # `drop view if exists`
     def drop_relation(self, relation):
+        # If relation type is None, the relation doesn't exist in the database
+        if relation.type is None:
+            return
+            
         if relation.type == "view":
             identifier = relation.identifier
             relations = self.list_relations_without_caching(relation)

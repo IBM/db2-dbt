@@ -56,7 +56,11 @@ my_db2_project:
   target: dev
 ```
 
+For a complete example with all available options including SSL/TLS configuration, see [profiles.yml.example](dbt/include/db2/profiles.yml.example).
+
 ### Connection Parameters
+
+#### Required Parameters
 
 | Parameter | Required | Default | Description |
 |-----------|----------|---------|-------------|
@@ -67,11 +71,42 @@ my_db2_project:
 | `schema` | Yes | - | Schema name |
 | `username` | Yes | - | DB2 username |
 | `password` | Yes | - | DB2 password |
-| `dsn` | No | - | Optional DSN connection string |
 | `threads` | No | 1 | Number of threads for parallel execution |
-| `retries` | No | 1 | Number of connection retry attempts |
 
 *Not required if using `dsn`
+
+#### Optional SSL/TLS Parameters
+
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| `security` | No | - | Security protocol (use `SSL` to enable SSL/TLS) |
+| `ssl_server_certificate` | No | - | Path to server CA certificate file |
+| `ssl_client_keystore` | No | - | Path to client keystore database (.kdb file) |
+| `ssl_client_keystash` | No | - | Path to client keystash file (.sth file) |
+| `ssl_client_hostname_validation` | No | - | Enable hostname verification (true/false) |
+| `retries` | No | 1 | Number of connection retry attempts |
+
+#### SSL/TLS Configuration Example
+
+```yaml
+my_db2_project:
+  outputs:
+    prod:
+      type: db2
+      host: secure-db2.example.com
+      port: 50001
+      database: PRODDB
+      schema: ANALYTICS
+      username: prod_user
+      password: prod_password
+      threads: 8
+      # SSL/TLS settings
+      security: SSL
+      ssl_server_certificate: /path/to/server-ca.crt
+      ssl_client_hostname_validation: true
+      retries: 3
+  target: prod
+```
 
 ### Using DSN Connection
 

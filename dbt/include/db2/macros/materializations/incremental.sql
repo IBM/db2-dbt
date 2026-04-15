@@ -36,7 +36,12 @@
     {% endset %}
   {% else %}
     -- Create a temporary table with the new data
-    {% do adapter.drop_relation(tmp_relation) if tmp_relation is not none %}
+    -- Drop temp table if it exists
+    {% set tmp_relation_check = load_relation(tmp_relation) %}
+    {% if tmp_relation_check is not none %}
+      {% do adapter.drop_relation(tmp_relation_check) %}
+    {% endif %}
+    
     {% set tmp_table_sql %}
       create table {{ tmp_relation }}
       as (
@@ -53,13 +58,13 @@
       {% if unique_key is sequence and unique_key is not string %}
         {% set unique_key_match %}
           {% for key in unique_key %}
-            target.{{ key }} = source.{{ key }}
+            target.{{ key | upper }} = source.{{ key | upper }}
             {% if not loop.last %} AND {% endif %}
           {% endfor %}
         {% endset %}
       {% else %}
         {% set unique_key_match %}
-          target.{{ unique_key }} = source.{{ unique_key }}
+          target.{{ unique_key | upper }} = source.{{ unique_key | upper }}
         {% endset %}
       {% endif %}
 
@@ -96,6 +101,14 @@
   {% call statement('main') %}
     {{ build_sql }}
   {% endcall %}
+
+  {# Clean up temporary table after successful merge #}
+  {% if existing_relation is not none and not full_refresh_mode %}
+    {% set cleanup_tmp_relation = load_relation(tmp_relation) %}
+    {% if cleanup_tmp_relation is not none %}
+      {% do adapter.drop_relation(cleanup_tmp_relation) %}
+    {% endif %}
+  {% endif %}
 
   {# Commit the transaction to ensure the table is persisted #}
   {% call statement('commit') %}

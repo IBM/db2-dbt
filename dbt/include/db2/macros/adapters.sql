@@ -125,17 +125,17 @@
 {% macro db2__get_columns_in_relation(relation) -%}
   {% call statement('get_columns_in_relation', fetch_result=True) %}
       select
-          column_name,
-          data_type,
-          character_maximum_length,
-          numeric_precision,
-          numeric_scale
-      from {{ relation.information_schema('columns') }}
-      where table_name like '{{ relation.identifier }}'
+          COLNAME as column_name,
+          TYPENAME as data_type,
+          LENGTH as character_maximum_length,
+          LENGTH as numeric_precision,
+          SCALE as numeric_scale
+      from SYSCAT.COLUMNS
+      where TABNAME = '{{ relation.identifier | upper }}'
         {% if relation.schema %}
-        and table_schema like '{{ relation.schema }}'
+        and TABSCHEMA = '{{ relation.schema | upper }}'
         {% endif %}
-      order by ordinal_position
+      order by COLNO
   {% endcall %}
   {% set table = load_result('get_columns_in_relation').table %}
   {{ return(sql_convert_columns_in_relation(table)) }}
