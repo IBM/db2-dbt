@@ -101,18 +101,17 @@ class Db2Adapter(SQLAdapter):
             return relations
 
         # Get actual column names from results (case-insensitive match)
-        available_columns = [col.lower() for col in results.column_names]
         columns = []
         for expected_col in ["DATABASE", "SCHEMA", "NAME", "TYPE"]:
             # Find matching column (case-insensitive)
             matching_col = next((col for col in results.column_names
-                               if col.upper() == expected_col), None)
+                                 if col.upper() == expected_col), None)
             if matching_col:
                 columns.append(matching_col)
             else:
                 # Fallback to expected column name
                 columns.append(expected_col)
-        
+
         for _database, _schema, _identifier, _type in results.select(columns):
             try:
                 _type = self.Relation.get_relation_type(_type.lower())
@@ -153,7 +152,7 @@ class Db2Adapter(SQLAdapter):
         # If relation type is None, the relation doesn't exist in the database
         if relation.type is None:
             return
-            
+
         if relation.type == "view":
             identifier = relation.identifier
             relations = self.list_relations_without_caching(relation)
@@ -240,7 +239,7 @@ class Db2Adapter(SQLAdapter):
             return self.quote(column)
         else:
             return column
-            
+
     @available
     def quote_seed_value(self, value, quote_config: Optional[bool] = True) -> str:
         """Quote a seed value for insertion into a SQL statement."""

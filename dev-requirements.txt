@@ -1,9 +1,9 @@
-dbt-adapters==1.13.2
-dbt-common==1.14.0
-dbt-core==1.9.2
-dbt-extractor==0.5.1
-dbt-semantic-interfaces==0.7.4
-dbt-tests-adapter==1.10.4
+dbt-adapters~=1.15
+dbt-common~=1.37
+dbt-core~=1.11.0
+dbt-extractor~=0.6
+dbt-semantic-interfaces~=0.9
+dbt-tests-adapter~=1.11
 black~=23.10
 bumpversion~=0.6.0
 click~=8.1
