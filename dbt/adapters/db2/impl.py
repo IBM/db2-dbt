@@ -13,10 +13,10 @@ from dbt.adapters.base.meta import available
 from dbt.adapters.base.impl import ConstraintSupport, _utc
 from dbt.adapters.base.relation import BaseRelation
 from dbt.adapters.exceptions.database import UnexpectedDbReferenceError
-from dbt.adapters.db2 import DB2ConnectionManager
-from dbt.adapters.db2.column import DB2Column
+from dbt.adapters.db2 import Db2ConnectionManager
+from dbt.adapters.db2.column import Db2Column
 from dbt.adapters.db2.et_options_parser import get_et_options_as_string
-from dbt.adapters.db2.relation import DB2Relation
+from dbt.adapters.db2.relation import Db2Relation
 from dbt.adapters.protocol import AdapterConfig
 from dbt.adapters.sql.impl import SQLAdapter, LIST_RELATIONS_MACRO_NAME
 from dbt.contracts.graph.manifest import Manifest
@@ -26,19 +26,19 @@ from dbt.contracts.graph.nodes import ConstraintType
 from dbt.adapters.contracts.macros import MacroResolverProtocol
 
 @dataclass
-class DB2Config(AdapterConfig):
+class Db2Config(AdapterConfig):
     dist: Optional[str] = None
 
 
 FRESHNESS_MACRO_NAME = "collect_freshness"  # Macro used to analyze the freshness of the data imports in tables
-class DB2Adapter(SQLAdapter):
+class Db2Adapter(SQLAdapter):
     INT_MIN32 = -2147483648
     INT_MAX32 = 2147483648
 
-    AdapterSpecificConfigs = DB2Config
-    ConnectionManager = DB2ConnectionManager
-    Relation = DB2Relation
-    Column = DB2Column
+    AdapterSpecificConfigs = Db2Config
+    ConnectionManager = Db2ConnectionManager
+    Relation = Db2Relation
+    Column = Db2Column
 
     CONSTRAINT_SUPPORT = {
         ConstraintType.check: ConstraintSupport.NOT_ENFORCED,
@@ -52,7 +52,7 @@ class DB2Adapter(SQLAdapter):
     def date_function(cls):
         return "now()"
 
-    # Overriding methods because DB2 uppercases by default
+    # Overriding methods because Db2 uppercases by default
     # and we want to avoid quoting of columns
     # Source: https://github.com/dbt-labs/dbt-snowflake/blob/fda11c2e822519996101d2c456a51570f4ed1c04/dbt/adapters/snowflake/impl.py#L45-L54
     @classmethod
@@ -130,7 +130,7 @@ class DB2Adapter(SQLAdapter):
 
         return relations
 
-    # Override with Redshift implementation because DB2 does not support `text`
+    # Override with Redshift implementation because Db2 does not support `text`
     # Source: https://github.com/dbt-labs/dbt-redshift/blob/64f6f7ba4f8fbe11d9c547f7c07faeb9b14deb83/dbt/adapters/redshift/impl.py#L54-L61
     @classmethod
     def convert_text_type(cls, agate_table, col_idx):
@@ -142,12 +142,12 @@ class DB2Adapter(SQLAdapter):
         max_len = max(lens) if lens else 64
         return f"varchar({max_len})"
 
-    # Override to remove `without time zone` because DB2 does not support this
+    # Override to remove `without time zone` because Db2 does not support this
     @classmethod
     def convert_datetime_type(cls, agate_table: agate.Table, col_idx: int) -> str:
         return "timestamp"
 
-    # Override to check if view exists before dropping because DB2 does not support
+    # Override to check if view exists before dropping because Db2 does not support
     # `drop view if exists`
     def drop_relation(self, relation):
         # If relation type is None, the relation doesn't exist in the database
@@ -254,7 +254,7 @@ class DB2Adapter(SQLAdapter):
             value = str(value).replace("'", "''")
             return f"'{value}'"
 
-    # Override to search for uppercase keys in grants_table because DB2 always returns
+    # Override to search for uppercase keys in grants_table because Db2 always returns
     # uppercase keys and agate.Table.__get_item__ is case-sensitive
     def standardize_grants_dict(self, grants_table: agate.Table) -> dict:
         grants_dict: Dict[str, List[str]] = {}
@@ -273,7 +273,7 @@ class DB2Adapter(SQLAdapter):
         """
         return ["merge", "delete+insert"]
 
-    # For checking the freshness , converting the str type object returned from DB2 relation to datetime
+    # For checking the freshness , converting the str type object returned from Db2 relation to datetime
     def calculate_freshness(
         self,
         source: BaseRelation,

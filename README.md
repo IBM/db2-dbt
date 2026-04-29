@@ -1,10 +1,10 @@
 # dbt-db2
 
-The `dbt-db2` adapter allows dbt to work with IBM DB2 databases. This adapter uses the `ibm_db` Python driver to connect to DB2 databases.
+The `dbt-db2` adapter allows dbt to work with IBM Db2 databases. This adapter uses the `ibm_db` Python driver to connect to Db2 databases.
 
 ## Features
 
-- ✅ Full dbt support for IBM DB2
+- ✅ Full dbt support for IBM Db2
 - ✅ Table and view materializations
 - ✅ Incremental models (merge and delete+insert strategies)
 - ✅ Seeds
@@ -17,7 +17,7 @@ The `dbt-db2` adapter allows dbt to work with IBM DB2 databases. This adapter us
 - Python 3.9 - 3.13 (Python 3.14 not yet supported due to dependency issues)
 - dbt-core ~= 1.11.0
 - ibm_db == 3.2.8
-- IBM DB2 database (LUW, z/OS, or iSeries)
+- IBM Db2 database (LUW, z/OS, or iSeries)
 
 ## Installation
 
@@ -39,7 +39,7 @@ pip install dbt-db2
 
 ### profiles.yml
 
-Configure your DB2 connection in `~/.dbt/profiles.yml`:
+Configure your Db2 connection in `~/.dbt/profiles.yml`:
 
 ```yaml
 my_db2_project:
@@ -47,7 +47,7 @@ my_db2_project:
     dev:
       type: db2
       host: your-db2-host
-      port: 50000  # Default DB2 port
+      port: 50000  # Default Db2 port
       database: your_database
       schema: your_schema
       username: your_username
@@ -65,12 +65,12 @@ For a complete example with all available options including SSL/TLS configuratio
 | Parameter | Required | Default | Description |
 |-----------|----------|---------|-------------|
 | `type` | Yes | - | Must be `db2` |
-| `host` | Yes* | - | DB2 server hostname |
-| `port` | No | 50000 | DB2 server port |
+| `host` | Yes* | - | Db2 server hostname |
+| `port` | No | 50000 | Db2 server port |
 | `database` | Yes | - | Database name |
 | `schema` | Yes | - | Schema name |
-| `username` | Yes | - | DB2 username |
-| `password` | Yes | - | DB2 password |
+| `username` | Yes | - | Db2 username |
+| `password` | Yes | - | Db2 password |
 | `threads` | No | 1 | Number of threads for parallel execution |
 
 *Not required if using `dsn`
@@ -117,7 +117,7 @@ my_db2_project:
   outputs:
     dev:
       type: db2
-      dsn: MY_DB2_DSN
+      dsn: MY_Db2_DSN
       username: your_username
       password: your_password
       schema: your_schema
@@ -125,20 +125,20 @@ my_db2_project:
   target: dev
 ```
 
-## DB2-Specific Considerations
+## Db2-Specific Considerations
 
 ### Case Sensitivity
 
-DB2 uppercases unquoted identifiers by default. The adapter handles this automatically, but be aware:
+Db2 uppercases unquoted identifiers by default. The adapter handles this automatically, but be aware:
 
 - Unquoted table/column names will be uppercased
 - Use quotes in your SQL to preserve case: `"MyTable"` vs `MYTABLE`
 
 ### Data Types
 
-The adapter maps dbt data types to DB2 types:
+The adapter maps dbt data types to Db2 types:
 
-| dbt Type | DB2 Type |
+| dbt Type | Db2 Type |
 |----------|----------|
 | string | VARCHAR |
 | text | VARCHAR(max_length) |
@@ -185,7 +185,7 @@ dbt init my_db2_project
 
 ### 2. Configure Connection
 
-Edit `~/.dbt/profiles.yml` with your DB2 connection details.
+Edit `~/.dbt/profiles.yml` with your Db2 connection details.
 
 ### 3. Test Connection
 
@@ -269,7 +269,7 @@ dbt seed
 
 ### Connection Issues
 
-1. **Verify DB2 is accessible**:
+1. **Verify Db2 is accessible**:
    ```bash
    db2 connect to your_database user your_username
    ```
@@ -300,8 +300,8 @@ pip install ibm_db==3.2.8
 ## Known Limitations
 
 1. **Python 3.14**: Not yet supported due to mashumaro library compatibility
-2. **Constraints**: CHECK, UNIQUE, PRIMARY KEY, and FOREIGN KEY constraints are defined but not enforced by DB2 in dbt context
-3. **Distribution keys**: Not applicable to DB2 (Netezza-specific feature)
+2. **Constraints**: CHECK, UNIQUE, PRIMARY KEY, and FOREIGN KEY constraints are defined but not enforced by Db2 in dbt context
+3. **LISTAGG limit_num**: Db2's LISTAGG function does not support limiting the number of aggregated values
 
 ## Contributing
 
@@ -328,7 +328,7 @@ For issues and questions:
 ### 1.0.5
 - Updated ibm_db to 3.2.8
 - Updated dbt-core to ~1.8.0
-- Improved DB2 compatibility
+- Improved Db2 compatibility
 - Fixed connection handling
 
 ## Related Projects

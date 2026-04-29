@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class DB2Column(Column):
+class Db2Column(Column):
     TYPE_LABELS = {
         **Column.TYPE_LABELS,
         "STRING": "varchar(2000)",

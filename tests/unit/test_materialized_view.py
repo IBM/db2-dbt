@@ -4,11 +4,11 @@ import pytest
 from dbt.adapters.contracts.relation import RelationType
 from dbt.adapters.relation_configs.config_change import RelationConfigChangeAction
 
-from dbt.adapters.db2.relation import DB2Relation
+from dbt.adapters.db2.relation import Db2Relation
 
 
 @pytest.mark.skip(
-    """Skipping. DB2 doesn't support multiple types of Indexes as Postgres."""
+    """Skipping. Db2 doesn't support multiple types of Indexes as Postgres."""
 )
 def test_index_config_changes():
     index_0_old = {
@@ -29,7 +29,7 @@ def test_index_config_changes():
         "unique": True,
         "method": "btree",
     }
-    # Since this test is skipped for DB2, we don't need to create actual index configs
+    # Since this test is skipped for Db2, we don't need to create actual index configs
     # Just use the dictionaries directly for the test
     existing_indexes = frozenset([index_0_old, index_1_old, index_2_old])
 
@@ -44,14 +44,14 @@ def test_index_config_changes():
     }
     new_indexes = frozenset([index_0_new, index_2_new, index_3_new])
 
-    relation = DB2Relation.create(
+    relation = Db2Relation.create(
         database="my_database",
         schema="my_schema",
         identifier="my_materialized_view",
         type=RelationType.MaterializedView,
     )
 
-    # Since DB2 doesn't support this functionality, we'll mock the expected result
+    # Since Db2 doesn't support this functionality, we'll mock the expected result
     # instead of calling a non-existent method
     index_changes = [
         type('IndexChange', (), {'action': RelationConfigChangeAction.drop})(),

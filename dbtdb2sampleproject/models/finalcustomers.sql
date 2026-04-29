@@ -1,4 +1,4 @@
--- DB2 doesn't handle CTEs well, so we'll use a simpler approach
+-- Db2 doesn't handle CTEs well, so we'll use a simpler approach
 select
     c.customer_id,
     c.first_name,

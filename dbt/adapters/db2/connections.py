@@ -19,7 +19,7 @@ logger = AdapterLogger("db2")
 
 
 @dataclass
-class DB2Credentials(Credentials):
+class Db2Credentials(Credentials):
     """
     Defines database specific credentials that get added to
     profiles.yml to connect to new adapter
@@ -34,7 +34,7 @@ class DB2Credentials(Credentials):
     port: Port = Port(50000)
     retries: int = 1
     
-    # DB2 SSL/TLS parameters
+    # Db2 SSL/TLS parameters
     security: Optional[str] = None  # 'SSL' to enable SSL/TLS
     ssl_server_certificate: Optional[str] = None  # Path to server CA certificate
     ssl_client_keystore: Optional[str] = None  # Path to client keystore database
@@ -67,21 +67,21 @@ class DB2Credentials(Credentials):
         )
 
 
-class DB2ConnectionManager(connection_cls):
+class Db2ConnectionManager(connection_cls):
     TYPE = "db2"
 
     def test_connection(self) -> None:
         """
         This method is called by `dbt debug` to verify that the connection works.
         """
-        logger.debug("Running DB2 test_connection with SYSIBM.SYSDUMMY1")
-        # Use proper DB2 syntax for a simple test query
+        logger.debug("Running Db2 test_connection with SYSIBM.SYSDUMMY1")
+        # Use proper Db2 syntax for a simple test query
         sql = "SELECT 1 FROM SYSIBM.SYSDUMMY1"
         try:
             self.add_query(sql, auto_begin=False)
-            logger.debug("DB2 test_connection succeeded.")
+            logger.debug("Db2 test_connection succeeded.")
         except Exception as e:
-            logger.error(f"DB2 test_connection failed: {str(e)}")
+            logger.error(f"Db2 test_connection failed: {str(e)}")
             raise
 
     @contextmanager
@@ -143,7 +143,7 @@ class DB2ConnectionManager(connection_cls):
                         f"PWD={credentials.password};"
                     )
                     
-                    # Add DB2 SSL/TLS parameters if provided
+                    # Add Db2 SSL/TLS parameters if provided
                     if credentials.security:
                         # Enable SSL/TLS security
                         if credentials.security.upper() == 'SSL':
@@ -170,7 +170,7 @@ class DB2ConnectionManager(connection_cls):
                     
                     # Add hostname verification if specified
                     if credentials.ssl_client_hostname_validation is not None:
-                        # DB2 uses SSLClientHostnameValidation parameter
+                        # Db2 uses SSLClientHostnameValidation parameter
                         validation_value = "true" if credentials.ssl_client_hostname_validation else "false"
                         conn_str += f"SSLClientHostnameValidation={validation_value};"
                         logger.debug(f"SSL hostname validation: {validation_value}")
@@ -218,7 +218,7 @@ class DB2ConnectionManager(connection_cls):
         logger.info("Canceled query '{}'".format(connection_name))
         
     def begin(self):
-        """Override to handle DB2-specific transaction behavior"""
+        """Override to handle Db2-specific transaction behavior"""
         connection = self.get_thread_connection()
         if connection.transaction_open is True:
             logger.debug('Connection is already in a transaction')
@@ -226,10 +226,10 @@ class DB2ConnectionManager(connection_cls):
             
         logger.debug('Beginning a new transaction')
         connection.transaction_open = True
-        # DB2 doesn't need an explicit BEGIN statement
+        # Db2 doesn't need an explicit BEGIN statement
         
     def commit(self):
-        """Override to handle DB2-specific transaction behavior"""
+        """Override to handle Db2-specific transaction behavior"""
         connection = self.get_thread_connection()
         if connection.transaction_open is False:
             logger.debug('No transaction was open, nothing to commit')
@@ -273,9 +273,9 @@ class DB2ConnectionManager(connection_cls):
                 db_conn = cast(Any, connection.handle)
                 cursor = db_conn.cursor()
                 
-                # If this is the debug query, modify it for DB2 syntax
+                # If this is the debug query, modify it for Db2 syntax
                 if sql.strip().lower() == 'select 1 as id':
-                    logger.debug("Detected debug query, modifying for DB2 syntax")
+                    logger.debug("Detected debug query, modifying for Db2 syntax")
                     sql = "SELECT 1 FROM SYSIBM.SYSDUMMY1"
                 
                 # Check if the SQL starts with BEGIN
@@ -324,9 +324,9 @@ class DB2ConnectionManager(connection_cls):
     ) -> Tuple[AdapterResponse, agate.Table]:
         sql = self._add_query_comment(sql)
         
-        # If this is the debug query, modify it for DB2 syntax
+        # If this is the debug query, modify it for Db2 syntax
         if sql.strip().lower() == 'select 1 as id':
-            logger.debug("Detected debug query in execute, modifying for DB2 syntax")
+            logger.debug("Detected debug query in execute, modifying for Db2 syntax")
             sql = "SELECT 1 FROM SYSIBM.SYSDUMMY1"
         
         # Check if the SQL starts with BEGIN

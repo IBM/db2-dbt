@@ -10,7 +10,7 @@ from dbt.task.debug import DebugTask
 from dbt_common.exceptions import DbtConfigError
 from ibm_db_dbi import DatabaseError, Connection
 
-from dbt.adapters.db2 import Plugin, DB2Adapter
+from dbt.adapters.db2 import Plugin, Db2Adapter
 from tests.unit.utils import (
     clear_plugin,
     config_from_parts_or_dicts,
@@ -19,7 +19,7 @@ from tests.unit.utils import (
 )
 
 
-class TestDB2Connection(TestCase):
+class TestDb2Connection(TestCase):
     def setUp(self):
         self.target_dict = {
             "type": "db2",
@@ -75,7 +75,7 @@ class TestDB2Connection(TestCase):
         self.mock_state_check.side_effect = _mock_state_check
 
         self.ibm_db.connect.return_value = self.handle
-        self.adapter = DB2Adapter(self.config, self.mp_context)
+        self.adapter = Db2Adapter(self.config, self.mp_context)
         self.adapter.set_macro_resolver(load_internal_manifest_macros(self.config))
         self.adapter.set_macro_context_generator(generate_runtime_macro_context)
         self.adapter.connections.set_query_header(
@@ -96,7 +96,7 @@ class TestDB2Connection(TestCase):
         clear_plugin(Plugin)
 
     @pytest.mark.skip(
-        """Skipping. Since drop schema is not yet supported on DB2"""
+        """Skipping. Since drop schema is not yet supported on Db2"""
     )
     def test_quoting_on_drop_schema(self):
         relation = self.adapter.Relation.create(
@@ -199,7 +199,7 @@ class TestDB2Connection(TestCase):
 
     def test_dbname_verification_is_case_insensitive(self):
         # Override adapter settings from setUp()
-        self.target_dict["dbname"] = "DB2"
+        self.target_dict["dbname"] = "Db2"
         profile_cfg = {
             "outputs": {
                 "test": self.target_dict,
@@ -220,5 +220,5 @@ class TestDB2Connection(TestCase):
         self.config = config_from_parts_or_dicts(project_cfg, profile_cfg)
         self.mp_context = get_context("spawn")
         self.adapter.cleanup_connections()
-        self._adapter = DB2Adapter(self.config, self.mp_context)
+        self._adapter = Db2Adapter(self.config, self.mp_context)
         self.adapter.verify_database("testdbt")

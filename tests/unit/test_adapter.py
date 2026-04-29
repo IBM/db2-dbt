@@ -10,7 +10,7 @@ from dbt_common.exceptions import DbtValidationError
 import pytest
 import ibm_db, ibm_db_dbi
 
-from dbt.adapters.db2 import Plugin, DB2Adapter
+from dbt.adapters.db2 import Plugin, Db2Adapter
 from tests.unit.utils import (
     config_from_parts_or_dicts,
     inject_adapter,
@@ -18,7 +18,7 @@ from tests.unit.utils import (
 )
 
 
-class TestDB2Adapter(TestCase):
+class TestDb2Adapter(TestCase):
     def setUp(self):
         project_cfg = {
             "name": "X",
@@ -49,7 +49,7 @@ class TestDB2Adapter(TestCase):
     @property
     def adapter(self):
         if self._adapter is None:
-            self._adapter = DB2Adapter(self.config, self.mp_context)
+            self._adapter = Db2Adapter(self.config, self.mp_context)
             inject_adapter(self._adapter, Plugin)
         return self._adapter
 
@@ -255,13 +255,13 @@ class TestDB2Adapter(TestCase):
         connection.handle
         mock_connect.assert_called_once()
 
-    @mock.patch.object(DB2Adapter, "execute_macro")
-    @mock.patch.object(DB2Adapter, "_get_catalog_relations")
+    @mock.patch.object(Db2Adapter, "execute_macro")
+    @mock.patch.object(Db2Adapter, "_get_catalog_relations")
     def test_get_catalog_various_schemas(self, mock_get_relations, mock_execute):
         self.catalog_test(mock_get_relations, mock_execute, False)
 
-    @mock.patch.object(DB2Adapter, "execute_macro")
-    @mock.patch.object(DB2Adapter, "_get_catalog_relations")
+    @mock.patch.object(Db2Adapter, "execute_macro")
+    @mock.patch.object(Db2Adapter, "_get_catalog_relations")
     def test_get_filtered_catalog(self, mock_get_relations, mock_execute):
         self.catalog_test(mock_get_relations, mock_execute, True)
 
@@ -299,10 +299,10 @@ class TestDB2Adapter(TestCase):
         self.assertEqual(exceptions, [])
 
     def test_default_port_is_50000(self):
-        """Test that default port is 50000 (DB2 standard), not 5480"""
-        from dbt.adapters.db2.connections import DB2Credentials
+        """Test that default port is 50000 (Db2 standard), not 5480"""
+        from dbt.adapters.db2.connections import Db2Credentials
         
-        creds = DB2Credentials(
+        creds = Db2Credentials(
             database='testdb',
             schema='testschema',
             host='localhost',
@@ -315,9 +315,9 @@ class TestDB2Adapter(TestCase):
 
     def test_credentials_type_is_db2(self):
         """Test that credentials type is 'db2'"""
-        from dbt.adapters.db2.connections import DB2Credentials
+        from dbt.adapters.db2.connections import Db2Credentials
         
-        creds = DB2Credentials(
+        creds = Db2Credentials(
             database='testdb',
             schema='testschema',
             host='localhost',
@@ -344,7 +344,7 @@ class TestDB2Adapter(TestCase):
         self.assertNotIn('PORT=5480', call_args)
 
     def test_datediff_uses_db2_functions(self):
-        """Test that datediff macro uses DB2 native functions, not PostgreSQL"""
+        """Test that datediff macro uses Db2 native functions, not PostgreSQL"""
         import os
         # Go up two levels from tests/unit/ to project root
         macro_path = os.path.join(
@@ -362,7 +362,7 @@ class TestDB2Adapter(TestCase):
         with open(macro_path, 'r') as f:
             macro_content = f.read()
         
-        # Verify it uses DB2 functions
+        # Verify it uses Db2 functions
         self.assertIn('YEAR(', macro_content)
         self.assertIn('MONTH(', macro_content)
         self.assertIn('DAYS(', macro_content)
@@ -372,7 +372,7 @@ class TestDB2Adapter(TestCase):
         self.assertNotIn('::date', macro_content)
 
     def test_dateadd_macro_exists(self):
-        """Test that dateadd macro exists and uses DB2 syntax"""
+        """Test that dateadd macro exists and uses Db2 syntax"""
         import os
         # Go up two levels from tests/unit/ to project root
         macro_path = os.path.join(
@@ -393,7 +393,7 @@ class TestDB2Adapter(TestCase):
         with open(macro_path, 'r') as f:
             macro_content = f.read()
         
-        # Verify it uses DB2 date arithmetic
+        # Verify it uses Db2 date arithmetic
         self.assertIn('db2__dateadd', macro_content)
 
     def test_incremental_uses_merge(self):

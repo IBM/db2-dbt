@@ -20,6 +20,6 @@
     {% elif datepart == 'microsecond' %}
         ({{ datediff(first_date, second_date, 'second') }} * 1000000 + (MICROSECOND({{second_date}}) - MICROSECOND({{first_date}})))
     {% else %}
-        {{ exceptions.raise_compiler_error("Unsupported datepart for macro datediff in DB2: {!r}".format(datepart)) }}
+        {{ exceptions.raise_compiler_error("Unsupported datepart for macro datediff in Db2: {!r}".format(datepart)) }}
     {% endif %}
 {%- endmacro %}

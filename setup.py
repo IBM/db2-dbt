@@ -55,7 +55,7 @@ def _get_dbt_core_version():
 
 
 package_name = "dbt-db2"
-package_version = "1.0.5"
+package_version = "1.0.0"
 dbt_core_version = _get_dbt_core_version()
 description = """The IBM Db2 adapter plugin for dbt"""
 
@@ -72,7 +72,7 @@ setup(
     include_package_data=True,
     entry_points={
         "dbt.adapters": [
-            "db2 = dbt.adapters.db2.impl:DB2Adapter"
+            "db2 = dbt.adapters.db2.impl:Db2Adapter"
         ]
     },
     install_requires=["dbt-core~=1.11.0", "ibm_db==3.2.8"],

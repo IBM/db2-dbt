@@ -50,7 +50,7 @@
     {% endset %}
     {% do run_query(tmp_table_sql) %}
 
-    -- Use MERGE strategy for incremental updates (DB2 native support)
+    -- Use MERGE strategy for incremental updates (Db2 native support)
     {% set dest_columns = adapter.get_columns_in_relation(target_relation) %}
     {% set dest_cols_csv = dest_columns | map(attribute='quoted') | join(', ') %}
 
@@ -69,7 +69,7 @@
       {% endif %}
 
       {% set build_sql %}
-        -- Use DB2 MERGE for atomic upsert operation
+        -- Use Db2 MERGE for atomic upsert operation
         MERGE INTO {{ target_relation }} AS target
         USING {{ tmp_relation }} AS source
         ON {{ unique_key_match }}

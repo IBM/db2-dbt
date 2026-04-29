@@ -1,4 +1,4 @@
-# Override the dbt project fixture to prevent schema creation and deletion for DB2
+# Override the dbt project fixture to prevent schema creation and deletion for Db2
 # instances without schemas enabled
 # Source: https://docs.getdbt.com/docs/contributing/testing-a-new-adapter
 import os
@@ -14,7 +14,7 @@ from dbt.tests.util import run_sql_with_adapter, relation_from_name, get_manifes
 
 @pytest.fixture(scope="class")
 def unique_schema(request, prefix) -> str:
-    return os.getenv("DBT_TEST_DB2_SCHEMA", "ADMIN")
+    return os.getenv("DBT_TEST_Db2_SCHEMA", "ADMIN")
 
 
 @pytest.fixture(scope="class")

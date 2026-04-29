@@ -11,7 +11,7 @@ from dbt.events.types import SettingUpProfile, InvalidProfileTemplateYAML
 from dbt_common.events.functions import fire_event
 from dbt.adapters.db2.et_options_parser import create_et_options
 
-class DB2InitTask(InitTask):
+class Db2InitTask(InitTask):
     def setup_profile(self, profile_name: str) -> None:
         """Set up a new profile for a project"""
         fire_event(SettingUpProfile())
@@ -46,9 +46,9 @@ class DB2InitTask(InitTask):
 @requires.postflight
 @requires.preflight
 def db2_init(ctx, **kwargs):
-    """Initialize a new dbt project for DB2 driver."""
+    """Initialize a new dbt project for Db2 driver."""
 
-    with DB2InitTask(ctx.obj["flags"]) as task:
+    with Db2InitTask(ctx.obj["flags"]) as task:
         results = task.run()
         success = task.interpret_results(results)
     return results, success

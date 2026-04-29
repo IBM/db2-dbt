@@ -16,6 +16,6 @@
     {% elif datepart == 'second' %}
         {{ from_date_or_timestamp }} + {{ interval }} SECONDS
     {% else %}
-        {{ exceptions.raise_compiler_error("Unsupported datepart for macro dateadd in DB2: {!r}".format(datepart)) }}
+        {{ exceptions.raise_compiler_error("Unsupported datepart for macro dateadd in Db2: {!r}".format(datepart)) }}
     {% endif %}
 {% endmacro %}

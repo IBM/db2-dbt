@@ -27,7 +27,7 @@
     {{ dist(_dist) }}
     ;
 
-    {# DB2 does not support WITH clauses in INSERT statements #}
+    {# Db2 does not support WITH clauses in INSERT statements #}
     {# Extract the final SELECT statement from the SQL #}
     {% set sql_no_ctes = sql %}
     {% if sql.strip().upper().startswith('WITH') %}
@@ -43,7 +43,7 @@
 {% endmacro %}
 
 {% macro create_table_no_constraints(temporary, relation, sql, _dist) %}
-    {# DB2 does not support WITH clauses in CREATE TABLE AS statements #}
+    {# Db2 does not support WITH clauses in CREATE TABLE AS statements #}
     {# Extract the final SELECT statement from the SQL #}
     {% set sql_no_ctes = sql %}
     {% if sql.strip().upper().startswith('WITH') %}

@@ -25,7 +25,7 @@
     {{ build_sql }}
   {% endcall %}
 
-  -- Commit the transaction to ensure view is persisted in DB2
+  -- Commit the transaction to ensure view is persisted in Db2
   {% call statement('commit_view', auto_begin=False) %}
     COMMIT
   {% endcall %}

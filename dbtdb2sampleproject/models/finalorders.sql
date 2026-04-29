@@ -1,6 +1,6 @@
 {% set payment_methods = ['credit_card', 'coupon', 'bank_transfer', 'gift_card'] %}
 
--- DB2 doesn't handle CTEs well, so we'll use a simpler approach
+-- Db2 doesn't handle CTEs well, so we'll use a simpler approach
 select
     o.order_id,
     o.customer_id,

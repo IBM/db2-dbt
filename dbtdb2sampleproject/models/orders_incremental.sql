@@ -3,7 +3,7 @@
     unique_key='order_id'
 ) }}
 
--- DB2 doesn't handle CTEs well, so we'll use a simpler approach
+-- Db2 doesn't handle CTEs well, so we'll use a simpler approach
 SELECT
     order_id,
     customer_id,

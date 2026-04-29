@@ -1,6 +1,6 @@
 {% macro db2__render_sql(sql, model, add_extras) %}
   {# This macro is used by dbt to render SQL #}
-  {# We need to override it to handle DB2s limitations with CTEs #}
+  {# We need to override it to handle Db2s limitations with CTEs #}
   
   {# Call the default implementation to get the rendered SQL #}
   {% set rendered_sql = default__render_sql(sql, model, add_extras) %}
