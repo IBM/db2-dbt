@@ -28,6 +28,7 @@ classifiers = [
 dependencies = [
     "dbt-core~=1.11.0",
     "ibm_db==3.2.8",
+    "deepdiff>=8.6.2"
 ]
 
 [project.urls]
