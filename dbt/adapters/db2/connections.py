@@ -32,7 +32,7 @@ class Db2Credentials(Credentials):
     host: Optional[str] = None
     port: Port = Port(50000)
     retries: int = 1
-    
+
     # Db2 SSL/TLS parameters
     security: Optional[str] = None  # 'SSL' to enable SSL/TLS
     ssl_server_certificate: Optional[str] = None  # Path to server CA certificate
@@ -141,7 +141,7 @@ class Db2ConnectionManager(connection_cls):
                         f"UID={credentials.username};"
                         f"PWD={credentials.password};"
                     )
-                    
+
                     # Add Db2 SSL/TLS parameters if provided
                     if credentials.security:
                         # Enable SSL/TLS security
@@ -151,22 +151,22 @@ class Db2ConnectionManager(connection_cls):
                         else:
                             conn_str += f"Security={credentials.security};"
                             logger.debug(f"Security mode: {credentials.security}")
-                    
+
                     # Add SSL server certificate (CA certificate for verification)
                     if credentials.ssl_server_certificate:
                         conn_str += f"SSLServerCertificate={credentials.ssl_server_certificate};"
                         logger.debug(f"SSL server certificate: {credentials.ssl_server_certificate}")
-                    
+
                     # Add SSL client keystore database
                     if credentials.ssl_client_keystore:
                         conn_str += f"SSLClientKeystoredb={credentials.ssl_client_keystore};"
                         logger.debug(f"SSL client keystore: {credentials.ssl_client_keystore}")
-                    
+
                     # Add SSL client keystash file
                     if credentials.ssl_client_keystash:
                         conn_str += f"SSLClientKeystash={credentials.ssl_client_keystash};"
                         logger.debug(f"SSL client keystash: {credentials.ssl_client_keystash}")
-                    
+
                     # Add hostname verification if specified
                     if credentials.ssl_client_hostname_validation is not None:
                         # Db2 uses SSLClientHostnameValidation parameter
@@ -176,7 +176,7 @@ class Db2ConnectionManager(connection_cls):
 
                     logger.debug("Connecting with connection string (SSL params hidden)")
                     conn = ibm_db_dbi.connect(conn_str, "", "")
-                
+
                 if not hasattr(conn, 'cursor'):
                     raise DbtRuntimeError("Connection object lacks 'cursor()' method")
                 return conn
@@ -205,35 +205,35 @@ class Db2ConnectionManager(connection_cls):
         """
         connection_name = connection.name
         db2_connection = connection.handle
-        
+
         logger.info("Cancelling query '{}' ".format(connection_name))
-        
+
         try:
             db2_connection.close()
         except Exception as e:
             logger.error('Error closing connection for cancel request')
             raise Exception(str(e))
-        
+
         logger.info("Canceled query '{}'".format(connection_name))
-        
+
     def begin(self):
         """Override to handle Db2-specific transaction behavior"""
         connection = self.get_thread_connection()
         if connection.transaction_open is True:
             logger.debug('Connection is already in a transaction')
             return
-            
+
         logger.debug('Beginning a new transaction')
         connection.transaction_open = True
         # Db2 doesn't need an explicit BEGIN statement
-        
+
     def commit(self):
         """Override to handle Db2-specific transaction behavior"""
         connection = self.get_thread_connection()
         if connection.transaction_open is False:
             logger.debug('No transaction was open, nothing to commit')
             return
-            
+
         logger.debug('Committing transaction')
         connection.handle.commit()
         connection.transaction_open = False
@@ -271,12 +271,12 @@ class Db2ConnectionManager(connection_cls):
                 from typing import cast, Any
                 db_conn = cast(Any, connection.handle)
                 cursor = db_conn.cursor()
-                
+
                 # If this is the debug query, modify it for Db2 syntax
                 if sql.strip().lower() == 'select 1 as id':
                     logger.debug("Detected debug query, modifying for Db2 syntax")
                     sql = "SELECT 1 FROM SYSIBM.SYSDUMMY1"
-                
+
                 # Check if the SQL starts with BEGIN
                 if sql.strip().upper().startswith('BEGIN'):
                     logger.debug("Detected BEGIN statement, removing it")
@@ -322,17 +322,17 @@ class Db2ConnectionManager(connection_cls):
         self, sql: str, auto_begin: bool = False, fetch: bool = False, limit: Optional[int] = None
     ) -> Tuple[AdapterResponse, agate.Table]:
         sql = self._add_query_comment(sql)
-        
+
         # If this is the debug query, modify it for Db2 syntax
         if sql.strip().lower() == 'select 1 as id':
             logger.debug("Detected debug query in execute, modifying for Db2 syntax")
             sql = "SELECT 1 FROM SYSIBM.SYSDUMMY1"
-        
+
         # Check if the SQL starts with BEGIN
         if sql.strip().upper().startswith('BEGIN'):
             logger.debug("Detected BEGIN statement in execute, removing it")
             sql = sql.strip()[5:].strip()
-        
+
         try:
             connection, cursor = self.add_query(sql, auto_begin)
             response = self.get_response(cursor)
