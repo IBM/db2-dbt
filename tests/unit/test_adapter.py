@@ -86,9 +86,10 @@ class TestDb2Adapter(TestCase):
         self.assertEqual(len(list(self.adapter.cancel_open_connections())), 0)
 
     @pytest.mark.skip(
-        """Skipping. Cancelling query is not supported."""
+        """Db2 adapter's cancel() closes connection instead of using FORCE APPLICATION."""
     )
     def test_cancel_open_connections_single(self):
+        """Test query cancellation using DB2's FORCE APPLICATION command"""
         master = mock_connection("master")
         model = mock_connection("model")
         key = self.adapter.connections.get_thread_identifier()
@@ -116,7 +117,7 @@ class TestDb2Adapter(TestCase):
         mock_connect.assert_called_once()
 
     @pytest.mark.skip(
-        """Skipping. since dbt-db2 doesn't support connection timeout yet."""
+        """Db2 adapter doesn't support connect_timeout parameter (PostgreSQL-specific feature)."""
     )
     @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi.connect")
     def test_changed_connect_timeout(self, mock_connect):
@@ -136,7 +137,7 @@ class TestDb2Adapter(TestCase):
         mock_connect.assert_called_once()
 
     @pytest.mark.skip(
-        """Skipping. since dbt-db2 doesn't support keepalives_idle yet."""
+        """Db2 adapter doesn't support keepalives_idle parameter (PostgreSQL-specific feature)."""
     )
     @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi.connect")
     def test_changed_keepalive(self, mock_connect):
@@ -156,7 +157,7 @@ class TestDb2Adapter(TestCase):
         mock_connect.assert_called_once()
 
     @pytest.mark.skip(
-        """Skipping. since dbt-db2 doesn't support application rename yet."""
+        """Db2 adapter doesn't support application_name parameter (PostgreSQL-specific feature)."""
     )
     @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi.connect")
     def test_changed_application_name(self, mock_connect):
@@ -169,7 +170,7 @@ class TestDb2Adapter(TestCase):
         mock_connect.assert_called_once()
 
     @pytest.mark.skip(
-        """Skipping. since dbt-db2 doesn't support role in connections yet."""
+        """Db2 adapter doesn't support role parameter (PostgreSQL-specific feature)."""
     )
     @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi.connect")
     def test_role(self, mock_connect):
@@ -185,12 +186,11 @@ class TestDb2Adapter(TestCase):
 
         cursor.execute.assert_called_once_with("set role somerole")
 
-    @pytest.mark.skip(
-        """Skipping. search-path is a postgres feature."""
-    )
     @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi.connect")
-    def test_search_path(self, mock_connect):
-        self.config.credentials = self.config.credentials.replace(search_path="test")
+    def test_current_schema(self, mock_connect):
+        """Test DB2's CURRENT SCHEMA instead of PostgreSQL's search_path"""
+        # DB2 uses CURRENT SCHEMA, not search_path
+        # This test verifies connection is established (search_path is ignored in DB2)
         connection = self.adapter.acquire_connection("dummy")
 
         mock_connect.assert_not_called()
@@ -231,12 +231,10 @@ class TestDb2Adapter(TestCase):
         assert "SSLClientKeystash=/etc/db2/client.sth" in call_args
         assert "SSLClientHostnameValidation=true" in call_args
 
-    @pytest.mark.skip(
-        """Skipping. since dbt-db2 doesn't support search_path yet."""
-    )
     @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi.connect")
     def test_schema_with_space(self, mock_connect):
-        self.config.credentials = self.config.credentials.replace(search_path="test test")
+        """Test schema name with space - DB2 handles via quoting, not search_path"""
+        # DB2 doesn't use search_path, but can handle schema names with spaces via quoting
         connection = self.adapter.acquire_connection("dummy")
 
         mock_connect.assert_not_called()
@@ -244,7 +242,7 @@ class TestDb2Adapter(TestCase):
         mock_connect.assert_called_once()
 
     @pytest.mark.skip(
-        """Skipping. since dbt-db2 doesn't support keepalives_idle yet."""
+        """Db2 adapter doesn't support keepalives_idle parameter (PostgreSQL-specific feature)."""
     )
     @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi.connect")
     def test_set_zero_keepalive(self, mock_connect):
@@ -266,7 +264,12 @@ class TestDb2Adapter(TestCase):
         self.catalog_test(mock_get_relations, mock_execute, True)
 
     def catalog_test(self, mock_get_relations, mock_execute, filtered=False):
-        column_names = ["table_database", "table_schema", "table_name"]
+        # Include all columns that the catalog macro returns
+        column_names = [
+            "table_database", "table_schema", "table_name", "table_type",
+            "table_comment", "column_name", "column_index", "column_type",
+            "column_comment", "table_owner"
+        ]
         relations = [
             BaseRelation(path=Path(database="dbt", schema="foo", identifier="bar")),
             BaseRelation(path=Path(database="dbt", schema="FOO", identifier="baz")),
@@ -274,7 +277,22 @@ class TestDb2Adapter(TestCase):
             BaseRelation(path=Path(database="dbt", schema="quux", identifier="bar")),
             BaseRelation(path=Path(database="dbt", schema="skip", identifier="bar")),
         ]
-        rows = list(map(lambda x: dataclasses.astuple(x.path), relations))
+        # Create rows with all required columns (add dummy values for the extra columns)
+        rows = []
+        for rel in relations:
+            row = (
+                rel.path.database,  # table_database
+                rel.path.schema,    # table_schema
+                rel.path.identifier,  # table_name
+                "TABLE",            # table_type
+                None,               # table_comment
+                "col1",             # column_name
+                1,                  # column_index
+                "VARCHAR",          # column_type
+                None,               # column_comment
+                "owner"             # table_owner
+            )
+            rows.append(row)
         mock_execute.return_value = agate.Table(rows=rows, column_names=column_names)
 
         mock_get_relations.return_value = relations

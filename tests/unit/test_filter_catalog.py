@@ -10,12 +10,17 @@ from dbt.adapters.db2 import Db2Adapter
 class TestDb2FilterCatalog(TestCase):
     def test__catalog_filter_table(self):
         used_schemas = [["a", "B"], ["a", "1234"]]
-        column_names = ["table_name", "table_database", "table_schema", "something"]
+        # Include all columns that the catalog returns
+        column_names = [
+            "table_database", "table_schema", "table_name", "table_type",
+            "table_comment", "column_name", "column_index", "column_type",
+            "column_comment", "table_owner"
+        ]
         rows = [
-            ["foo", "a", "b", "1234"],  # include
-            ["foo", "a", "1234", "1234"],  # include, w/ table schema as str
-            ["foo", "c", "B", "1234"],  # skip
-            ["1234", "A", "B", "1234"],  # include, w/ table name as str
+            ["a", "b", "foo", "TABLE", None, "col1", 1, "VARCHAR", None, "owner"],  # include
+            ["a", "1234", "foo", "TABLE", None, "col1", 1, "VARCHAR", None, "owner"],  # include, w/ table schema as str
+            ["c", "B", "foo", "TABLE", None, "col1", 1, "VARCHAR", None, "owner"],  # skip
+            ["A", "B", "1234", "TABLE", None, "col1", 1, "VARCHAR", None, "owner"],  # include, w/ table name as str
         ]
         table = agate.Table(rows, column_names, agate_helper.DEFAULT_TYPE_TESTER)
 
@@ -25,4 +30,5 @@ class TestDb2FilterCatalog(TestCase):
             assert isinstance(row["table_schema"], str)
             assert isinstance(row["table_database"], str)
             assert isinstance(row["table_name"], str)
-            assert isinstance(row["something"], decimal.Decimal)
+            # column_index should be a number (int or Decimal depending on agate's type inference)
+            assert isinstance(row["column_index"], (int, decimal.Decimal))
