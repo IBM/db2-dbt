@@ -105,7 +105,7 @@ class Db2Adapter(SQLAdapter):
         for expected_col in ["DATABASE", "SCHEMA", "NAME", "TYPE"]:
             # Find matching column (case-insensitive)
             matching_col = next((col for col in results.column_names
-                                 if col.upper() == expected_col), None)
+                                if col.upper() == expected_col), None)
             if matching_col:
                 columns.append(matching_col)
             else:
