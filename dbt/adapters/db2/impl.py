@@ -25,12 +25,15 @@ from dbt_common.utils import filter_null_values, AttrDict
 from dbt.contracts.graph.nodes import ConstraintType
 from dbt.adapters.contracts.macros import MacroResolverProtocol
 
+
 @dataclass
 class Db2Config(AdapterConfig):
     dist: Optional[str] = None
 
 
 FRESHNESS_MACRO_NAME = "collect_freshness"  # Macro used to analyze the freshness of the data imports in tables
+
+
 class Db2Adapter(SQLAdapter):
     INT_MIN32 = -2147483648
     INT_MAX32 = 2147483648

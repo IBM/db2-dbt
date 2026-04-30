@@ -2,6 +2,7 @@ import os
 import yaml
 from typing import Dict
 
+
 class ETOptions:
     def __init__(self, options: Dict):
         self.options = options
@@ -28,6 +29,7 @@ def parse_et_options_yaml(file_path):
         data = yaml.safe_load(file)
     return data
 
+
 def get_et_options_as_string(user_file_path: str):
     yaml.SafeLoader.add_constructor('!ETOptions', et_options_constructor)
     et_options_data = parse_et_options_yaml(user_file_path)
@@ -37,6 +39,7 @@ def get_et_options_as_string(user_file_path: str):
     for k, v in et_options_data[0].options.items():
         to_be_returned += f"{k} {v}\n"
     return to_be_returned
+
 
 def create_et_options(project_path):
     yaml.add_representer(ETOptions, etoptions_representer)

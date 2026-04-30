@@ -112,7 +112,7 @@ class Db2ConnectionManager(connection_cls):
             raise DbtRuntimeError(str(e)) from e
 
     @classmethod
-    def open(cls, connection):
+    def open(cls, connection):  # noqa: C901
         logger.debug("db2 adapter: Connection is about to open.")
 
         # ✅ Skip if already open and handle is valid

@@ -11,6 +11,7 @@ from dbt.events.types import SettingUpProfile, InvalidProfileTemplateYAML
 from dbt_common.events.functions import fire_event
 from dbt.adapters.db2.et_options_parser import create_et_options
 
+
 class Db2InitTask(InitTask):
     def setup_profile(self, profile_name: str) -> None:
         """Set up a new profile for a project"""
@@ -33,6 +34,7 @@ class Db2InitTask(InitTask):
             create_et_options('.')
         self.create_profile_from_target(adapter, profile_name=profile_name)
 
+
 # dbt init
 @cli.command("init")
 @click.pass_context
@@ -52,5 +54,6 @@ def db2_init(ctx, **kwargs):
         results = task.run()
         success = task.interpret_results(results)
     return results, success
+
 
 init = db2_init

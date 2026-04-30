@@ -3,6 +3,7 @@ from typing import Optional, Type, TypeVar
 from dbt.adapters.base.relation import BaseRelation, Policy, Path, InformationSchema
 from dbt.adapters.contracts.relation import ComponentName, RelationType
 
+
 @dataclass
 class Db2Path(Path):
     def get_part(self, key: ComponentName) -> Optional[str]:
@@ -22,6 +23,7 @@ class Db2Path(Path):
             raise ValueError(
                 "Got a key of {}, expected one of {}".format(key, list(ComponentName))
             )
+
 
 @dataclass
 class Db2QuotePolicy(Policy):
@@ -60,7 +62,9 @@ class Db2Relation(BaseRelation):
         info_schema = Db2InformationSchema.from_relation(self, view_name)
         return info_schema.incorporate(path={"schema": None})
 
+
 Info = TypeVar("Info", bound="Db2InformationSchema")
+
 
 class Db2InformationSchema(InformationSchema):
     @classmethod
