@@ -14,7 +14,7 @@ The `dbt-db2` adapter allows dbt to work with IBM Db2 databases. This adapter us
 
 ## Requirements
 
-- Python 3.9 - 3.13 (Python 3.14 not yet supported due to dependency issues)
+- Python 3.10 - 3.12 (Python 3.13+ not yet tested; Python 3.9 not supported due to dbt-core 1.11+ requirements)
 - dbt-core ~= 1.11.0
 - ibm_db == 3.2.8
 - IBM Db2 database (LUW, z/OS, or iSeries)
@@ -280,7 +280,10 @@ dbt seed
 
 ### Python Version Issues
 
-If you encounter mashumaro serialization errors, ensure you're using Python 3.9-3.13 (not 3.14).
+This adapter requires Python 3.10 or higher due to dbt-core 1.11+ dependencies requiring `dbt-common~=1.37` and `dbt-adapters~=1.15`, which both require Python 3.10+.
+
+**Supported versions:** Python 3.10, 3.11, 3.12
+**Not supported:** Python 3.9 (use older dbt-core versions), Python 3.13+ (not yet tested)
 
 ### Driver Issues
 
@@ -299,7 +302,9 @@ pip install ibm_db==3.2.8
 
 ## Known Limitations
 
-1. **Python 3.14**: Not yet supported due to mashumaro library compatibility
+1. **Python Version**:
+   - Requires Python 3.10+ (dbt-core 1.11+ dependency requirement)
+   - Python 3.13+ not yet tested
 2. **Constraints**: CHECK, UNIQUE, PRIMARY KEY, and FOREIGN KEY constraints are defined but not enforced by Db2 in dbt context
 3. **LISTAGG limit_num**: Db2's LISTAGG function does not support limiting the number of aggregated values
 
@@ -325,11 +330,17 @@ For issues and questions:
 
 ## Version History
 
-### 1.0.5
+### 1.0.0 (Current)
+- Migrated to modern `pyproject.toml` packaging (PEP 517/518/621)
+- Updated to dbt-core ~1.11.0
 - Updated ibm_db to 3.2.8
-- Updated dbt-core to ~1.8.0
-- Improved Db2 compatibility
-- Fixed connection handling
+- **Breaking:** Dropped Python 3.9 support (requires Python 3.10+)
+- Tested on Python 3.10, 3.11, 3.12
+- Fixed 27 Flake8 linting errors
+- Improved unit test coverage (37 passing, 8 skipped)
+- Updated to strict code quality standards
+- Modernized CI/CD workflows
+- Security updates (PyYAML 6.0.3+, flake8 7.3)
 
 ## Related Projects
 
