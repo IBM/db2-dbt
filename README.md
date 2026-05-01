@@ -325,7 +325,7 @@ Contributions are welcome! Please:
 ## Support
 
 For issues and questions:
-- GitHub Issues: [repository-url]/issues
+- GitHub Issues: https://github.com/IBM/db2-dbt/issues
 - dbt Community: https://community.getdbt.com/
 
 ## Version History
