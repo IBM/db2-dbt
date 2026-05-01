@@ -1,0 +1,5 @@
+# Runtime dependencies - matches pyproject.toml [project.dependencies]
+# This file is kept for compatibility with traditional pip workflows
+# Source of truth: pyproject.toml
+dbt-core~=1.11.0
+ibm_db==3.2.8

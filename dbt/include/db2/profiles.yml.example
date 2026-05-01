@@ -1,0 +1,87 @@
+# Example Db2 profiles.yml configuration
+# Copy this to ~/.dbt/profiles.yml and customize for your environment
+
+# Basic configuration (required fields only)
+my_db2_project:
+  target: dev
+  outputs:
+    dev:
+      type: db2
+      host: localhost
+      port: 50000
+      user: db2user
+      password: your_password
+      database: SAMPLE
+      schema: ADMIN
+      threads: 8
+
+# Advanced configuration with SSL/TLS options
+my_db2_project_ssl:
+  target: dev
+  outputs:
+    dev:
+      type: db2
+      host: db2.example.com
+      port: 50001
+      user: db2user
+      password: your_password
+      database: PRODDB
+      schema: ANALYTICS
+      threads: 8
+      
+      # SSL/TLS Configuration (uncomment and configure as needed)
+      # Enable SSL/TLS security
+      security: SSL
+      
+      # Path to server CA certificate file for SSL verification
+      ssl_server_certificate: /path/to/server-ca.crt
+      
+      # Path to client keystore database (for mutual TLS authentication)
+      # ssl_client_keystore: /path/to/client.kdb
+      
+      # Path to client keystash file (contains encrypted keystore password)
+      # ssl_client_keystash: /path/to/client.sth
+      
+      # Enable hostname verification (recommended for production)
+      # ssl_client_hostname_validation: true
+      
+      # Connection retry attempts (default: 1)
+      # retries: 3
+
+# Configuration using DSN (Data Source Name)
+my_db2_project_dsn:
+  target: dev
+  outputs:
+    dev:
+      type: db2
+      dsn: MY_DB2_DSN  # DSN configured in db2dsdriver.cfg or odbc.ini
+      schema: ADMIN
+      threads: 8
+
+# Multi-environment configuration
+my_db2_project_multi_env:
+  target: dev
+  outputs:
+    dev:
+      type: db2
+      host: dev-db2.example.com
+      port: 50000
+      user: dev_user
+      password: dev_password
+      database: DEV_DB
+      schema: DEV_SCHEMA
+      threads: 4
+      
+    prod:
+      type: db2
+      host: prod-db2.example.com
+      port: 50001
+      user: prod_user
+      password: prod_password
+      database: PROD_DB
+      schema: PROD_SCHEMA
+      threads: 16
+      security: SSL
+      ssl_server_certificate: /etc/ssl/certs/db2-prod-ca.crt
+      ssl_client_hostname_validation: true
+      retries: 3

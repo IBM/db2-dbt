@@ -1,0 +1,5 @@
+- !ETOptions
+    SkipRows: "1"
+    Delimiter: "','"
+    DateDelim: "'-'"
+    MaxErrors: " 0 "

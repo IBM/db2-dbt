@@ -1,0 +1,3 @@
+# Sample project dependencies - matches main project
+# Install the dbt-db2 adapter and its dependencies
+dbt-db2>=1.0.0

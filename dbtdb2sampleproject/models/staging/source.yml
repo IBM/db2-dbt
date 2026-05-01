@@ -1,0 +1,15 @@
+version: 2
+
+sources:
+  - name: sample_source
+    database: TESTDB
+    schema: NEWUSER
+    tables:
+      - name: ordrs
+        identifier: raw_orders
+
+      - name: cust
+        identifier: raw_customers
+
+      - name: payments
+        identifier: raw_payments
