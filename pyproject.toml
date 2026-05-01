@@ -27,7 +27,7 @@ classifiers = [
 dependencies = [
     "dbt-core~=1.11.0",
     "ibm_db==3.2.8",
-    "deepdiff>=8.6.2"
+    "deepdiff>=8.6.2,<9.0"
 ]
 
 [project.urls]
@@ -60,7 +60,7 @@ namespaces = true
 # Black configuration
 [tool.black]
 line-length = 99
-target-version = ['py39', 'py310', 'py311', 'py312']
+target-version = ['py310', 'py311', 'py312']
 include = '\.pyi?$'
 
 # Pytest configuration
@@ -79,7 +79,7 @@ env_files = ["test.env"]
 
 # MyPy configuration
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.10"
 namespace_packages = true
 warn_return_any = true
 warn_unused_configs = true

@@ -1,5 +1,3 @@
-from shutil import copytree, move
-
 from dbt.contracts.results import RunStatus, TestStatus
 from dbt.exceptions import TargetNotFoundError
 from dbt.tests.util import rm_file, write_file

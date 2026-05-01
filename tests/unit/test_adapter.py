@@ -1,4 +1,3 @@
-import dataclasses
 from multiprocessing import get_context
 from unittest import TestCase, mock
 
@@ -8,7 +7,6 @@ from dbt.adapters.contracts.relation import Path
 from dbt_common.context import set_invocation_context
 from dbt_common.exceptions import DbtValidationError
 import pytest
-import ibm_db, ibm_db_dbi
 
 from dbt.adapters.db2 import Plugin, Db2Adapter
 from tests.unit.utils import (
@@ -205,7 +203,7 @@ class TestDb2Adapter(TestCase):
         mock_connect.assert_not_called()
         connection.handle
         mock_connect.assert_called_once()
-        
+
         # Verify SSL parameter is in connection string
         call_args = mock_connect.call_args[0][0]
         assert "Security=SSL" in call_args
@@ -213,16 +211,24 @@ class TestDb2Adapter(TestCase):
     @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi.connect")
     def test_ssl_parameters(self, mock_connect):
         self.config.credentials = self.config.credentials.replace(security="SSL")
-        self.config.credentials = self.config.credentials.replace(ssl_server_certificate="/etc/db2/ca.crt")
-        self.config.credentials = self.config.credentials.replace(ssl_client_keystore="/etc/db2/client.kdb")
-        self.config.credentials = self.config.credentials.replace(ssl_client_keystash="/etc/db2/client.sth")
-        self.config.credentials = self.config.credentials.replace(ssl_client_hostname_validation=True)
+        self.config.credentials = self.config.credentials.replace(
+            ssl_server_certificate="/etc/db2/ca.crt"
+        )
+        self.config.credentials = self.config.credentials.replace(
+            ssl_client_keystore="/etc/db2/client.kdb"
+        )
+        self.config.credentials = self.config.credentials.replace(
+            ssl_client_keystash="/etc/db2/client.sth"
+        )
+        self.config.credentials = self.config.credentials.replace(
+            ssl_client_hostname_validation=True
+        )
         connection = self.adapter.acquire_connection("dummy")
 
         mock_connect.assert_not_called()
         connection.handle
         mock_connect.assert_called_once()
-        
+
         # Verify all SSL parameters are in connection string
         call_args = mock_connect.call_args[0][0]
         assert "Security=SSL" in call_args
@@ -319,7 +325,7 @@ class TestDb2Adapter(TestCase):
     def test_default_port_is_50000(self):
         """Test that default port is 50000 (Db2 standard), not 5480"""
         from dbt.adapters.db2.connections import Db2Credentials
-        
+
         creds = Db2Credentials(
             database='testdb',
             schema='testschema',
@@ -327,14 +333,14 @@ class TestDb2Adapter(TestCase):
             username='testuser',
             password='testpass'
         )
-        
+
         # Verify default port is 50000, not 5480
         self.assertEqual(creds.port, 50000)
 
     def test_credentials_type_is_db2(self):
         """Test that credentials type is 'db2'"""
         from dbt.adapters.db2.connections import Db2Credentials
-        
+
         creds = Db2Credentials(
             database='testdb',
             schema='testschema',
@@ -342,21 +348,21 @@ class TestDb2Adapter(TestCase):
             username='testuser',
             password='testpass'
         )
-        
+
         self.assertEqual(creds.type, 'db2')
 
     @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi.connect")
     def test_connection_uses_correct_port(self, mock_connect):
         """Test that connection string uses port 50000 by default"""
         connection = self.adapter.acquire_connection("dummy")
-        
+
         mock_connect.assert_not_called()
         connection.handle
         mock_connect.assert_called_once()
-        
+
         # Get the connection string
         call_args = mock_connect.call_args[0][0]
-        
+
         # Verify it uses port 50000, not 5480
         self.assertIn('PORT=50000', call_args)
         self.assertNotIn('PORT=5480', call_args)
@@ -376,15 +382,15 @@ class TestDb2Adapter(TestCase):
             'utils',
             'datediff.sql'
         )
-        
+
         with open(macro_path, 'r') as f:
             macro_content = f.read()
-        
+
         # Verify it uses Db2 functions
         self.assertIn('YEAR(', macro_content)
         self.assertIn('MONTH(', macro_content)
         self.assertIn('DAYS(', macro_content)
-        
+
         # Verify it does NOT use PostgreSQL functions
         self.assertNotIn('date_part', macro_content.lower())
         self.assertNotIn('::date', macro_content)
@@ -404,13 +410,13 @@ class TestDb2Adapter(TestCase):
             'utils',
             'dateadd.sql'
         )
-        
+
         # Verify file exists
         self.assertTrue(os.path.exists(macro_path), "dateadd.sql macro should exist")
-        
+
         with open(macro_path, 'r') as f:
             macro_content = f.read()
-        
+
         # Verify it uses Db2 date arithmetic
         self.assertIn('db2__dateadd', macro_content)
 
@@ -429,10 +435,10 @@ class TestDb2Adapter(TestCase):
             'materializations',
             'incremental.sql'
         )
-        
+
         with open(macro_path, 'r') as f:
             macro_content = f.read()
-        
+
         # Verify it uses MERGE strategy
         self.assertIn('MERGE', macro_content.upper())
 
@@ -450,7 +456,7 @@ class TestDb2Adapter(TestCase):
             'macros',
             'utils'
         )
-        
+
         # Check that utility macros exist
         expected_macros = [
             'datediff.sql',
@@ -459,7 +465,7 @@ class TestDb2Adapter(TestCase):
             'length.sql',
             'position.sql'
         ]
-        
+
         for macro_file in expected_macros:
             macro_path = os.path.join(macros_dir, macro_file)
             self.assertTrue(
@@ -481,10 +487,10 @@ class TestDb2Adapter(TestCase):
             'macros',
             'adapters.sql'
         )
-        
+
         with open(macro_path, 'r') as f:
             macro_content = f.read()
-        
+
         # Verify list_schemas is implemented
         self.assertIn('db2__list_schemas', macro_content)
         self.assertIn('SYSCAT.SCHEMATA', macro_content)
@@ -503,10 +509,10 @@ class TestDb2Adapter(TestCase):
             'macros',
             'adapters.sql'
         )
-        
+
         with open(macro_path, 'r') as f:
             macro_content = f.read()
-        
+
         # Verify list_relations_without_caching is implemented
         self.assertIn('db2__list_relations_without_caching', macro_content)
         self.assertIn('SYSCAT.TABLES', macro_content)

@@ -1,11 +1,10 @@
-import yaml
 import os
 from os import chdir
 from os.path import normcase, normpath
 from io import StringIO
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Callable, Dict, List, Optional
+from typing import Callable, List, Optional
 
 from dbt.cli.main import dbtRunner
 from dbt_common.events.functions import (

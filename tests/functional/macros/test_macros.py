@@ -2,7 +2,7 @@ from pathlib import Path
 import shutil
 
 from dbt.tests.fixtures.project import write_project_files
-from dbt.tests.util import check_relations_equal, run_dbt
+from dbt.tests.util import run_dbt
 import dbt_common.exceptions
 import pytest
 
@@ -10,7 +10,6 @@ from tests.functional.macros.fixtures import (
     dbt_project__incorrect_dispatch,
     macros__deprecated_adapter_macro,
     macros__incorrect_dispatch,
-    macros__my_macros,
     macros__named_materialization,
     macros__no_default_macros,
     macros__override_get_columns_macros,
