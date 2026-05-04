@@ -1,6 +1,6 @@
-# dbt-db2
+# ibm-dbt-db2
 
-The `dbt-db2` adapter allows dbt to work with IBM Db2 databases. This adapter uses the `ibm_db` Python driver to connect to Db2 databases.
+The `ibm-dbt-db2` adapter allows dbt to work with IBM Db2 databases. This adapter uses the `ibm_db` Python driver to connect to Db2 databases.
 
 ## Features
 
@@ -32,7 +32,7 @@ pip install -e .
 ### Install from PyPI (when available)
 
 ```bash
-pip install dbt-db2
+pip install ibm-dbt-db2
 ```
 
 ## Configuration

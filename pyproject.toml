@@ -3,14 +3,17 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "dbt-db2"
-version = "1.0.0"
+name = "ibm-dbt-db2"
+version = "1.0.0.dev1"
 description = "The IBM Db2 adapter plugin for dbt"
 readme = "README.md"
 requires-python = ">=3.10,<3.13"
 license = {text = "Apache-2.0"}
 authors = [
     {name = "Shubham Kapoor", email = "shubham.kapoor992@gmail.com"}
+]
+maintainers = [
+    {name = "Amit Parmar", email = "amit25parmars@gmail.com"}
 ]
 keywords = ["dbt", "db2", "ibm", "adapter"]
 classifiers = [
@@ -26,8 +29,7 @@ classifiers = [
 
 dependencies = [
     "dbt-core~=1.11.0",
-    "ibm_db==3.2.8",
-    "deepdiff>=8.6.2,<9.0"
+    "ibm_db==3.2.8"
 ]
 
 [project.urls]
