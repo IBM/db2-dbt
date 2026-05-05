@@ -124,7 +124,7 @@ class TestDb2Connection(TestCase):
         self.mock_execute.assert_has_calls(
             [
                 mock.call(
-                    '/* dbt */\n\n        drop table "test_schema".test_table if exists\n    '
+                    '/* dbt */\ndrop table "test_schema".test_table'
                 )
             ]
         )
@@ -140,7 +140,7 @@ class TestDb2Connection(TestCase):
         self.adapter.truncate_relation(relation)
         self.mock_execute.assert_has_calls(
             [
-                mock.call('/* dbt */\ntruncate table "test_schema".test_table')
+                mock.call('/* dbt */\ntruncate table "test_schema".test_table immediate')
             ]
         )
 
@@ -163,7 +163,7 @@ class TestDb2Connection(TestCase):
         self.adapter.rename_relation(from_relation=from_relation, to_relation=to_relation)
         self.mock_execute.assert_has_calls(
             [
-                mock.call('/* dbt */\nalter table "test_schema".table_a rename to "test_schema".table_b')
+                mock.call('/* dbt */\n\n        rename table "test_schema".table_a to table_b\n    ')
             ]
         )
 

@@ -43,23 +43,16 @@
 {% endmacro %}
 
 {% macro create_table_no_constraints(temporary, relation, sql, _dist) %}
-    {# Db2 does not support WITH clauses in CREATE TABLE AS statements #}
-    {# Extract the final SELECT statement from the SQL #}
-    {% set sql_no_ctes = sql %}
-    {% if sql.strip().upper().startswith('WITH') %}
-      {# This is a very simple approach - for complex CTEs, a more sophisticated parser would be needed #}
-      {% set final_select_pos = sql.upper().rfind('SELECT') %}
-      {% if final_select_pos > 0 %}
-        {% set sql_no_ctes = sql[final_select_pos:] %}
-      {% endif %}
-    {% endif %}
-    
-    create {% if temporary -%}temporary{%- endif %} table
-    {{ relation }}
+    create table {{ relation }}
     as (
-        {{ sql_no_ctes }}
+        select * from (
+            {{ sql }}
+        ) as dbt_internal_query
     )
-    {{ dist(_dist) }}
+    {% if _dist %}
+        {{ dist(_dist) }}
+    {% endif %}
+    with data
     ;
 {% endmacro %}
 
@@ -67,6 +60,14 @@
   {%- set sql_header = config.get('sql_header', none) -%}
   {%- set _dist = config.get('dist') -%}
   {{ sql_header if sql_header is not none }}
+
+  {# Drop temp table if it exists (for snapshot temp tables with __dbt_tmp suffix) #}
+  {# Use direct DROP IF EXISTS to avoid case sensitivity issues with load_relation #}
+  {% if relation.identifier.lower().endswith('__dbt_tmp') %}
+    {% call statement('drop_temp_if_exists', auto_begin=False) %}
+      DROP TABLE {{ relation }}
+    {% endcall %}
+  {% endif %}
 
   {% set contract_config = config.get('contract') %}
   {% if contract_config.enforced and (not temporary) %}
@@ -108,37 +109,60 @@
 
 {% macro db2__drop_relation(relation) -%}
   {% call statement('drop_relation', auto_begin=False) -%}
-    {% if relation.type == 'view' %}
-        drop {{ relation.type }} {{ relation }}
-    {% else %}
-        drop {{ relation.type }} {{ relation }} if exists
-    {% endif %}
+    drop {{ relation.type }} {{ relation }}
   {%- endcall %}
 {% endmacro %}
 
 {% macro db2__rename_relation(from_relation, to_relation) -%}
   {% call statement('rename_relation') -%}
-    alter {{ from_relation.type }} {{ from_relation }} rename to {{ to_relation }}
+    {% if from_relation.type == 'view' %}
+        {# DB2 doesn't support renaming views directly #}
+        {{ exceptions.raise_compiler_error("DB2 does not support renaming views. Please drop and recreate the view instead.") }}
+    {% else %}
+        rename table {{ from_relation }} to {{ to_relation.identifier }}
+    {% endif %}
   {%- endcall %}
 {% endmacro %}
 
 {% macro db2__get_columns_in_relation(relation) -%}
+  {# First try SYSCAT.COLUMNS for regular tables #}
   {% call statement('get_columns_in_relation', fetch_result=True) %}
       select
-          COLNAME as column_name,
-          TYPENAME as data_type,
-          LENGTH as character_maximum_length,
-          LENGTH as numeric_precision,
-          SCALE as numeric_scale
-      from SYSCAT.COLUMNS
-      where TABNAME = '{{ relation.identifier | upper }}'
+          colname,
+          typename,
+          length,
+          scale
+      from syscat.columns
+      where tabname = upper('{{ relation.identifier }}')
         {% if relation.schema %}
-        and TABSCHEMA = '{{ relation.schema | upper }}'
+        and tabschema = upper('{{ relation.schema }}')
         {% endif %}
-      order by COLNO
+      order by colno
   {% endcall %}
-  {% set table = load_result('get_columns_in_relation').table %}
-  {{ return(sql_convert_columns_in_relation(table)) }}
+
+  {% set results = load_result('get_columns_in_relation').table %}
+  
+  {# If SYSCAT returns no results (temp tables), use cursor.description fallback #}
+  {% if results | length == 0 %}
+    {% call statement('get_columns_via_cursor', fetch_result=True) %}
+        select * from {{ relation }} fetch first 1 row only
+    {% endcall %}
+    {% set cursor_result = load_result('get_columns_via_cursor') %}
+    {{ return(adapter.get_columns_from_cursor(cursor_result)) }}
+  {% endif %}
+
+  {# Build Column objects from SYSCAT results #}
+  {% set columns = [] %}
+  {% for row in results %}
+      {% do columns.append(api.Column(
+          column=row['COLNAME'],
+          dtype=row['TYPENAME'],
+          char_size=row['LENGTH'],
+          numeric_scale=row['SCALE']
+      )) %}
+  {% endfor %}
+
+  {{ return(columns) }}
 {% endmacro %}
 
 {% macro db2__alter_relation_comment(relation, comment) %}
@@ -161,3 +185,39 @@
   {% endif %}
   '{{ comment | replace("'", "''")}}'
 {%- endmacro %}
+
+{% macro db2__truncate_relation(relation) -%}
+  {% call statement('truncate_relation') -%}
+    truncate table {{ relation }} immediate
+  {%- endcall %}
+{% endmacro %}
+
+{% macro db2__get_limit_subquery_sql(sql, limit) %}
+    select *
+    from (
+        {% if "from" not in sql | lower %}
+            {{ sql }} from sysibm.sysdummy1
+        {% else %}
+            {{ sql }}
+        {% endif %}
+    ) as dbt_sbq
+    fetch first {{ limit }} rows only
+{% endmacro %}
+
+{% macro db2__limit_sql(limit) %}
+    fetch first {{ limit }} rows only
+{% endmacro %}
+
+{% macro db2__get_empty_subquery_sql(sql, select_sql_header=none) %}
+    {{ select_sql_header if select_sql_header is not none }}
+
+    select *
+    from (
+        {% if "from" not in sql | lower %}
+            {{ sql }} from sysibm.sysdummy1
+        {% else %}
+            {{ sql }}
+        {% endif %}
+    ) as dbt_sbq
+    where 1 = 0
+{% endmacro %}

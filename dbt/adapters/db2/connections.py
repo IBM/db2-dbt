@@ -305,18 +305,51 @@ class Db2ConnectionManager(connection_cls):
 
     @classmethod
     def data_type_code_to_name(cls, type_code) -> str:
-        name_map = {
-            int: "INTEGER",
-            str: "VARCHAR",
-            float: "FLOAT",
-            bool: "BOOLEAN",
-            bytes: "BLOB",
-        }
-        if type(type_code) in name_map:
-            return name_map[type(type_code)]
-        else:
-            warn_or_error(TypeCodeNotFound(type_code=type_code))
-            return f"unknown type_code {type_code}"
+        # DBAPITypeObject handling
+        if hasattr(type_code, "values"):
+            try:
+                values = {v.upper() for v in type_code.values}
+
+                # STRING types
+                if values & {"CHAR", "CHARACTER", "VARCHAR", "STRING", "CHARACTER VARYING", "CHAR VARYING"}:
+                    return "STRING"
+
+                # INTEGER types
+                if values & {"INT", "INTEGER", "SMALLINT", "BIGINT"}:
+                    return "INTEGER"
+
+                # DECIMAL types
+                if values & {"DECIMAL", "NUMERIC", "DEC", "NUM"}:
+                    return "DECIMAL"
+
+                # TIMESTAMP types
+                if "TIMESTAMP" in values:
+                    return "TIMESTAMP"
+
+                # BOOLEAN
+                if "BOOLEAN" in values:
+                    return "BOOLEAN"
+
+                # BLOB
+                if values & {"BLOB", "BINARY", "VARBINARY"}:
+                    return "BLOB"
+
+                return sorted(values)[0]
+
+            except Exception:
+                pass
+
+        # Fallbacks (keep minimal and safe)
+        if isinstance(type_code, bool):
+            return "BOOLEAN"
+
+        if isinstance(type_code, bytes):
+            return "BLOB"
+
+        type_code_str = str(type_code)
+
+        warn_or_error(TypeCodeNotFound(type_code=type_code_str))
+        return "STRING"
 
     def execute(
         self, sql: str, auto_begin: bool = False, fetch: bool = False, limit: Optional[int] = None

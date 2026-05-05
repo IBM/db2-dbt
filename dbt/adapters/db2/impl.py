@@ -191,8 +191,6 @@ class Db2Adapter(SQLAdapter):
         except BaseException as e:
             if conn.handle and not getattr(conn.handle, "closed", True):
                 conn.handle.rollback()
-            print(sql)
-            print(e)
             raise
         finally:
             conn.transaction_open = False
@@ -268,6 +266,46 @@ class Db2Adapter(SQLAdapter):
             else:
                 grants_dict.update({privilege: [grantee]})
         return grants_dict
+    @available
+    def get_columns_from_cursor(self, cursor_result) -> List[Db2Column]:
+        """
+        Extract column information from cursor.description for temp tables
+        that are not visible in SYSCAT.COLUMNS.
+        
+        Even if the table is empty, agate table will have column metadata.
+        """
+        columns = []
+        if hasattr(cursor_result, 'table'):
+            table = cursor_result.table
+            
+            # Check explicitly for None, not truthiness (empty table evaluates to False)
+            if table is not None:
+                # Agate tables have column_names and column_types attributes
+                if hasattr(table, 'column_names') and hasattr(table, 'column_types'):
+                    for col_name, col_type in zip(table.column_names, table.column_types):
+                        # Map agate types to DB2 types
+                        dtype = str(col_type.__class__.__name__).upper()
+                        if dtype == 'NUMBER':
+                            dtype = 'DECIMAL'
+                        elif dtype == 'TEXT':
+                            dtype = 'VARCHAR'
+                        elif dtype == 'BOOLEAN':
+                            dtype = 'BOOLEAN'
+                        elif dtype == 'DATE':
+                            dtype = 'DATE'
+                        elif dtype == 'DATETIME':
+                            dtype = 'TIMESTAMP'
+                        
+                        db2_col = Db2Column(
+                            column=col_name,
+                            dtype=dtype,
+                            char_size=None,
+                            numeric_scale=None
+                        )
+                        columns.append(db2_col)
+        
+        return columns
+
 
     def valid_incremental_strategies(self):
         """The set of standard builtin strategies which this adapter supports out-of-the-box.
