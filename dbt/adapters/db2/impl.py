@@ -188,7 +188,7 @@ class Db2Adapter(SQLAdapter):
                 return cursor.fetchall()
             else:
                 return
-        except BaseException as e:
+        except BaseException:
             if conn.handle and not getattr(conn.handle, "closed", True):
                 conn.handle.rollback()
             raise
@@ -266,18 +266,19 @@ class Db2Adapter(SQLAdapter):
             else:
                 grants_dict.update({privilege: [grantee]})
         return grants_dict
+
     @available
     def get_columns_from_cursor(self, cursor_result) -> List[Db2Column]:
         """
         Extract column information from cursor.description for temp tables
         that are not visible in SYSCAT.COLUMNS.
-        
+
         Even if the table is empty, agate table will have column metadata.
         """
         columns = []
         if hasattr(cursor_result, 'table'):
             table = cursor_result.table
-            
+
             # Check explicitly for None, not truthiness (empty table evaluates to False)
             if table is not None:
                 # Agate tables have column_names and column_types attributes
@@ -295,7 +296,7 @@ class Db2Adapter(SQLAdapter):
                             dtype = 'DATE'
                         elif dtype == 'DATETIME':
                             dtype = 'TIMESTAMP'
-                        
+
                         db2_col = Db2Column(
                             column=col_name,
                             dtype=dtype,
@@ -303,9 +304,8 @@ class Db2Adapter(SQLAdapter):
                             numeric_scale=None
                         )
                         columns.append(db2_col)
-        
-        return columns
 
+        return columns
 
     def valid_incremental_strategies(self):
         """The set of standard builtin strategies which this adapter supports out-of-the-box.

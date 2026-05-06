@@ -304,38 +304,41 @@ class Db2ConnectionManager(connection_cls):
             return connection, cursor
 
     @classmethod
+    def _map_dbapi_type_to_name(cls, values: set) -> str:
+        """Map DBAPITypeObject values to DB2 type name."""
+        # STRING types
+        if values & {"CHAR", "CHARACTER", "VARCHAR", "STRING", "CHARACTER VARYING", "CHAR VARYING"}:
+            return "STRING"
+
+        # INTEGER types
+        if values & {"INT", "INTEGER", "SMALLINT", "BIGINT"}:
+            return "INTEGER"
+
+        # DECIMAL types
+        if values & {"DECIMAL", "NUMERIC", "DEC", "NUM"}:
+            return "DECIMAL"
+
+        # TIMESTAMP types
+        if "TIMESTAMP" in values:
+            return "TIMESTAMP"
+
+        # BOOLEAN
+        if "BOOLEAN" in values:
+            return "BOOLEAN"
+
+        # BLOB
+        if values & {"BLOB", "BINARY", "VARBINARY"}:
+            return "BLOB"
+
+        return sorted(values)[0]
+
+    @classmethod
     def data_type_code_to_name(cls, type_code) -> str:
         # DBAPITypeObject handling
         if hasattr(type_code, "values"):
             try:
                 values = {v.upper() for v in type_code.values}
-
-                # STRING types
-                if values & {"CHAR", "CHARACTER", "VARCHAR", "STRING", "CHARACTER VARYING", "CHAR VARYING"}:
-                    return "STRING"
-
-                # INTEGER types
-                if values & {"INT", "INTEGER", "SMALLINT", "BIGINT"}:
-                    return "INTEGER"
-
-                # DECIMAL types
-                if values & {"DECIMAL", "NUMERIC", "DEC", "NUM"}:
-                    return "DECIMAL"
-
-                # TIMESTAMP types
-                if "TIMESTAMP" in values:
-                    return "TIMESTAMP"
-
-                # BOOLEAN
-                if "BOOLEAN" in values:
-                    return "BOOLEAN"
-
-                # BLOB
-                if values & {"BLOB", "BINARY", "VARBINARY"}:
-                    return "BLOB"
-
-                return sorted(values)[0]
-
+                return cls._map_dbapi_type_to_name(values)
             except Exception:
                 pass
 
@@ -347,7 +350,6 @@ class Db2ConnectionManager(connection_cls):
             return "BLOB"
 
         type_code_str = str(type_code)
-
         warn_or_error(TypeCodeNotFound(type_code=type_code_str))
         return "STRING"
 
