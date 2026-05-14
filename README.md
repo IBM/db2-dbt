@@ -359,17 +359,18 @@ pre-commit run --all-files
 The project uses GitHub Actions for CI/CD:
 
 #### Unit Tests Workflow
-- **Triggers**: Push to main/develop, pull requests
+- **Triggers**: Push to main, pull requests
 - **Testing Matrix**:
-  - OS: Ubuntu, macOS, Windows
-  - Python: 3.8, 3.9, 3.10, 3.11, 3.12
+  - OS: Ubuntu, macOS
+  - Python: 3.10, 3.11, 3.12
 - **Jobs**: Lint (flake8) and test across all combinations
+- **Note**: Windows is excluded due to ibm_db DLL dependency issues in CI environments
 
 #### Release Workflow
 - **Triggers**: Manual workflow dispatch or GitHub release
 - **Process**:
   1. **Build**: Creates wheel and validates with `twine check`
-  2. **Test Install**: Verifies installation across platforms (Ubuntu, macOS, Windows) with Python 3.8 and 3.12
+  2. **Test Install**: Verifies installation on Ubuntu and macOS with Python 3.10 and 3.12
   3. **Publish**: Deploys to Test PyPI or PyPI based on selection
 
 ### Release Process
