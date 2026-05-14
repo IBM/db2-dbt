@@ -1,56 +1,131 @@
-name: Publish Python 🐍 distribution 📦 to PyPI
+name: Build and Publish Release
 
 on:
   release:
     types:
-      - published  # Trigger when a release is published
+      - published
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Where to publish?'
+        required: true
+        type: choice
+        options:
+          - test-pypi
+          - pypi
+        default: 'test-pypi'
 
 permissions:
   id-token: write
+  contents: read
 
 jobs:
   build:
-    name: Publish release to PyPI
+    name: Build distribution 📦
     runs-on: ubuntu-latest
+    
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up python
+      
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
+      
       - name: Install dependencies
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install build twine
+      
       - name: Build package
         run: |
           python3 -m build
+      
+      - name: Check package
+        run: |
+          twine check dist/*
+      
       - name: Store the distribution packages
         uses: actions/upload-artifact@v4
         with:
           name: python-package-distributions
           path: dist/
 
-  publish-to-pypi:
-        name: >-
-          Publish Python 🐍 distribution 📦 to PyPI
-        if: startsWith(github.ref, 'refs/tags/')
-        needs:
-        - build
-        runs-on: ubuntu-latest
-        environment:
-          name: pypi
-          # URL will be: https://pypi.org/p/dbt-db2 (after first release)
-        permissions:
-          id-token: write
+  test-install:
+    name: Test installation
+    needs: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.8", "3.12"]
+    
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Download all the dists
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+      
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          pip install dist/*.whl
+      
+      - name: Test import
+        run: |
+          python -c "from dbt.adapters.db2 import Db2Adapter; print('Import successful')"
+          python -c "import dbt.adapters.db2; print(f'dbt-db2 version: {dbt.adapters.db2.__version__}')"
 
-        steps:
-        - name: Download all the dists
-          uses: actions/download-artifact@v4
-          with:
-            name: python-package-distributions
-            path: dist/
-        - name: Publish distribution 📦 to PyPI
-          uses: pypa/gh-action-pypi-publish@release/v1
+  publish-to-test-pypi:
+    name: Publish to Test PyPI
+    needs: [build, test-install]
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'test-pypi'
+    runs-on: ubuntu-latest
+    environment:
+      name: test-pypi
+      url: https://test.pypi.org/p/ibm-dbt-db2
+    permissions:
+      id-token: write
+    
+    steps:
+      - name: Download all the dists
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+      
+      - name: Publish distribution 📦 to Test PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          skip-existing: true
+
+  publish-to-pypi:
+    name: Publish to PyPI
+    needs: [build, test-install]
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'pypi'
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/ibm-dbt-db2
+    permissions:
+      id-token: write
+    
+    steps:
+      - name: Download all the dists
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+      
+      - name: Publish distribution 📦 to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+# Made with Bob

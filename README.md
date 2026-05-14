@@ -308,6 +308,100 @@ pip install ibm_db==3.2.8
 2. **Constraints**: CHECK, UNIQUE, PRIMARY KEY, and FOREIGN KEY constraints are defined but not enforced by Db2 in dbt context
 3. **LISTAGG limit_num**: Db2's LISTAGG function does not support limiting the number of aggregated values
 
+## Development
+
+### Building from Source
+
+To build the wheel file for development:
+
+```bash
+# Install build dependencies
+pip install build
+
+# Build the wheel
+python -m build
+
+# The wheel file will be in dist/
+```
+
+### Running Tests
+
+The project uses pytest for testing with support for multiple Python versions and platforms:
+
+```bash
+# Install test dependencies
+pip install -e ".[dev]"
+
+# Run unit tests
+pytest tests/unit -v
+
+# Run functional tests (requires DB2 connection)
+pytest tests/functional -v
+
+# Run all tests
+pytest tests/ -v
+```
+
+### Code Quality
+
+The project uses flake8 for linting:
+
+```bash
+# Run linting
+flake8 dbt/ tests/
+
+# Auto-fix some issues with pre-commit
+pre-commit run --all-files
+```
+
+### Continuous Integration
+
+The project uses GitHub Actions for CI/CD:
+
+#### Unit Tests Workflow
+- **Triggers**: Push to main/develop, pull requests
+- **Testing Matrix**:
+  - OS: Ubuntu, macOS, Windows
+  - Python: 3.8, 3.9, 3.10, 3.11, 3.12
+- **Jobs**: Lint (flake8) and test across all combinations
+
+#### Release Workflow
+- **Triggers**: Manual workflow dispatch or GitHub release
+- **Process**:
+  1. **Build**: Creates wheel and validates with `twine check`
+  2. **Test Install**: Verifies installation across platforms (Ubuntu, macOS, Windows) with Python 3.8 and 3.12
+  3. **Publish**: Deploys to Test PyPI or PyPI based on selection
+
+### Release Process
+
+#### Testing a Release (Test PyPI)
+1. Go to **Actions** tab in GitHub
+2. Select **"Build and Publish Release"** workflow
+3. Click **"Run workflow"**
+4. Choose **`test-pypi`** from the dropdown
+5. Package will be published to https://test.pypi.org/p/ibm-dbt-db2
+
+To install from Test PyPI:
+```bash
+pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ ibm-dbt-db2
+```
+
+#### Production Release (PyPI)
+1. Ensure all tests pass and code is ready
+2. Test the release on Test PyPI first (see above)
+3. Go to **Actions** tab in GitHub
+4. Select **"Build and Publish Release"** workflow
+5. Click **"Run workflow"**
+6. Choose **`pypi`** from the dropdown
+7. Package will be published to https://pypi.org/p/ibm-dbt-db2
+
+#### Automatic Release on GitHub Release
+When you create a GitHub release (tag), the workflow will automatically trigger but requires manual dispatch to publish.
+
+**Prerequisites**: Configure GitHub environments:
+- **test-pypi** environment with Test PyPI trusted publisher
+- **pypi** environment with PyPI trusted publisher
+
 ## Contributing
 
 Contributions are welcome! Please:
@@ -315,8 +409,14 @@ Contributions are welcome! Please:
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Add tests
-5. Submit a pull request
+4. Add tests (unit and/or functional)
+5. Ensure all tests pass and code passes linting
+6. Submit a pull request
+
+All pull requests will automatically run:
+- Linting checks (flake8)
+- Unit tests across multiple Python versions and platforms
+- Code quality validation
 
 ## License
 
