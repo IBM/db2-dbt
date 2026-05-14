@@ -127,5 +127,3 @@ jobs:
       
       - name: Publish distribution 📦 to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-
-# Made with Bob

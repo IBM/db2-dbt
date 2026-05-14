@@ -72,5 +72,3 @@ jobs:
         run: |
           flake8 dbt/
         continue-on-error: false
-
-# Made with Bob
