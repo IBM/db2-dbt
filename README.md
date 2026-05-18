@@ -375,33 +375,90 @@ The project uses GitHub Actions for CI/CD:
 
 ### Release Process
 
-#### Testing a Release (Test PyPI)
+#### Method 1: Tag-Based Release (Recommended)
+
+When you create and push a version tag, the workflow automatically triggers and waits for approval:
+
+1. **Create and push a version tag:**
+   ```bash
+   git tag v1.0.16
+   git push origin v1.0.16
+   ```
+
+2. **Workflow automatically triggers:**
+   - Builds the package
+   - Runs tests on multiple platforms
+   - **Pauses and waits for deployment approval**
+
+3. **Choose deployment target:**
+   - Go to **Actions** tab → Select the running workflow
+   - Click **"Review deployments"**
+   - Select environment:
+     - ✅ **test-pypi** - For testing (https://test.pypi.org/p/ibm-dbt-db2)
+     - ✅ **pypi** - For production (https://pypi.org/p/ibm-dbt-db2)
+   - Click **"Approve and deploy"**
+
+4. **Only authorized users can approve:**
+   - `shubhamkapoor992`
+   - `amitkumar293`
+
+#### Method 2: Manual Workflow Dispatch
+
+For manual releases with full control:
+
 1. Go to **Actions** tab in GitHub
 2. Select **"Build and Publish Release"** workflow
 3. Click **"Run workflow"**
-4. Choose **`test-pypi`** from the dropdown
-5. Package will be published to https://test.pypi.org/p/ibm-dbt-db2
+4. **Configure the release:**
+   - **Use workflow from:** Select branch (usually `main`)
+   - **Where to publish?** Choose:
+     - `test-pypi` - For testing
+     - `pypi` - For production
+   - **Git ref (tag/branch) to release from:** (Optional)
+     - Leave empty to use current branch
+     - Or enter a tag: `v1.0.16`
+     - Or enter a branch: `main`
+5. Click **"Run workflow"**
+6. Workflow will pause for approval (only authorized users can approve)
 
-To install from Test PyPI:
+**Examples:**
+- Release from current main branch: Leave "Git ref" empty
+- Release from specific tag: Enter `v1.0.16` in "Git ref"
+- Release from feature branch: Enter `feature-branch` in "Git ref"
+
+#### Installing from Test PyPI
+
+To test the package before production release:
 ```bash
 pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ ibm-dbt-db2
 ```
 
-#### Production Release (PyPI)
-1. Ensure all tests pass and code is ready
-2. Test the release on Test PyPI first (see above)
-3. Go to **Actions** tab in GitHub
-4. Select **"Build and Publish Release"** workflow
-5. Click **"Run workflow"**
-6. Choose **`pypi`** from the dropdown
-7. Package will be published to https://pypi.org/p/ibm-dbt-db2
+#### Environment Protection Setup
 
-#### Automatic Release on GitHub Release
-When you create a GitHub release (tag), the workflow will automatically trigger but requires manual dispatch to publish.
+**Required**: Configure GitHub environments for deployment protection:
 
-**Prerequisites**: Configure GitHub environments:
-- **test-pypi** environment with Test PyPI trusted publisher
-- **pypi** environment with PyPI trusted publisher
+1. **Go to Repository Settings → Environments**
+
+2. **Create `test-pypi` environment:**
+   - Click "New environment"
+   - Name: `test-pypi`
+   - **Deployment protection rules:**
+     - ✅ Enable "Required reviewers"
+     - Add reviewers: `shubhamkapoor992`, `amitkumar293`
+   - **Deployment branches and tags:**
+     - Select "Selected branches and tags"
+     - Add rule: `main` (restricts releases to main branch)
+     - Add rule: `v*` (allows version tags like v1.0.16)
+
+3. **Create `pypi` environment:**
+   - Same steps as above
+   - This protects production releases
+
+**What this does:**
+- ✅ Workflow pauses before publishing and requires approval
+- ✅ Only authorized reviewers can approve deployments
+- ✅ Provides audit trail of who approved each release
+- ✅ Prevents unauthorized or accidental releases
 
 ## Contributing
 
