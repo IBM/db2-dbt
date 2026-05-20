@@ -36,7 +36,7 @@ jobs:
         run: |
           # List of authorized GitHub usernames (UPDATE THIS LIST)
           # Add your GitHub username and other authorized maintainers
-          AUTHORIZED_USERS="shubhamkapoor992,amitkumar293,maintainer3"
+          AUTHORIZED_USERS="ShubhamKapoor992,amitkumar293"
           
           ACTOR="${{ github.actor }}"
           echo "Triggered by: $ACTOR"
