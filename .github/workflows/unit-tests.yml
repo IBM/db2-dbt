@@ -45,8 +45,17 @@ jobs:
 
       - name: Run unit tests
         run: |
-          pytest tests/unit/ -v
+          pytest tests/unit/ -v --cov=dbt --cov-report=xml --cov-report=term
         shell: bash
+
+      - name: Upload coverage to Codecov
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
 
   lint:
     name: Code Quality
