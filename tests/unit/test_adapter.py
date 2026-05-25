@@ -110,7 +110,7 @@ class TestDb2Adapter(TestCase):
         """Db2 adapter's cancel() closes connection instead of using FORCE APPLICATION."""
     )
     def test_cancel_open_connections_single(self):
-        """Test query cancellation using DB2's FORCE APPLICATION command"""
+        """Test query cancellation using Db2's FORCE APPLICATION command"""
         master = mock_connection("master")
         model = mock_connection("model")
         key = self.adapter.connections.get_thread_identifier()
@@ -209,9 +209,9 @@ class TestDb2Adapter(TestCase):
 
     @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi.connect")
     def test_current_schema(self, mock_connect):
-        """Test DB2's CURRENT SCHEMA instead of PostgreSQL's search_path"""
-        # DB2 uses CURRENT SCHEMA, not search_path
-        # This test verifies connection is established (search_path is ignored in DB2)
+        """Test Db2's CURRENT SCHEMA instead of PostgreSQL's search_path"""
+        # Db2 uses CURRENT SCHEMA, not search_path
+        # This test verifies connection is established (search_path is ignored in Db2)
         connection = self.adapter.acquire_connection("dummy")
 
         mock_connect.assert_not_called()
@@ -262,8 +262,8 @@ class TestDb2Adapter(TestCase):
 
     @mock.patch("dbt.adapters.db2.connections.ibm_db_dbi.connect")
     def test_schema_with_space(self, mock_connect):
-        """Test schema name with space - DB2 handles via quoting, not search_path"""
-        # DB2 doesn't use search_path, but can handle schema names with spaces via quoting
+        """Test schema name with space - Db2 handles via quoting, not search_path"""
+        # Db2 doesn't use search_path, but can handle schema names with spaces via quoting
         connection = self.adapter.acquire_connection("dummy")
 
         mock_connect.assert_not_called()

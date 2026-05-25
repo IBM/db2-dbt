@@ -116,8 +116,8 @@
 {% macro db2__rename_relation(from_relation, to_relation) -%}
   {% call statement('rename_relation') -%}
     {% if from_relation.type == 'view' %}
-        {# DB2 doesn't support renaming views directly #}
-        {{ exceptions.raise_compiler_error("DB2 does not support renaming views. Please drop and recreate the view instead.") }}
+        {# Db2 doesn't support renaming views directly #}
+        {{ exceptions.raise_compiler_error("Db2 does not support renaming views. Please drop and recreate the view instead.") }}
     {% else %}
         rename table {{ from_relation }} to {{ to_relation.identifier }}
     {% endif %}

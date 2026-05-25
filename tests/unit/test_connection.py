@@ -122,7 +122,7 @@ class TestDb2Connection(TestCase):
         """Db2's drop_schema macro uses run_query which doesn't work in unit tests without proper mocking."""
     )
     def test_quoting_on_drop_schema(self):
-        """Test drop schema using DB2's RESTRICT instead of CASCADE"""
+        """Test drop schema using Db2's RESTRICT instead of CASCADE"""
         relation = self.adapter.Relation.create(
             database="testdbt",
             schema="test_schema",
@@ -130,7 +130,7 @@ class TestDb2Connection(TestCase):
         )
         self.adapter.drop_schema(relation)
 
-        # DB2 uses RESTRICT instead of CASCADE, and checks existence first
+        # Db2 uses RESTRICT instead of CASCADE, and checks existence first
         # The actual implementation uses a macro that checks if schema exists
         # For unit test, we just verify drop_schema was called
         assert self.mock_execute.called

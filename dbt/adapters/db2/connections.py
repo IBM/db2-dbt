@@ -328,7 +328,7 @@ class Db2ConnectionManager(connection_cls):
 
     @classmethod
     def _map_dbapi_type_to_name(cls, values: set) -> str:
-        """Map DBAPITypeObject values to DB2 type name."""
+        """Map DBAPITypeObject values to Db2 type name."""
         # STRING types
         if values & {"CHAR", "CHARACTER", "VARCHAR", "STRING", "CHARACTER VARYING", "CHAR VARYING"}:
             return "STRING"

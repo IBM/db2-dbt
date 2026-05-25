@@ -307,7 +307,7 @@ class Db2Adapter(SQLAdapter):
                 # Agate tables have column_names and column_types attributes
                 if hasattr(table, 'column_names') and hasattr(table, 'column_types'):
                     for col_name, col_type in zip(table.column_names, table.column_types):
-                        # Map agate types to DB2 types
+                        # Map agate types to Db2 types
                         dtype = str(col_type.__class__.__name__).upper()
                         if dtype == 'NUMBER':
                             dtype = 'DECIMAL'

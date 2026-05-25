@@ -40,7 +40,7 @@
     
     {%- set insert_cols_csv = insert_cols | join(', ') -%}
 
-    {# Deduplicate source to avoid SQL0788N error in DB2 #}
+    {# Deduplicate source to avoid SQL0788N error in Db2 #}
     merge into {{ target }} as DBT_INTERNAL_DEST
     using (
         select * from (

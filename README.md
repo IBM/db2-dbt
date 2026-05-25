@@ -335,7 +335,7 @@ pip install -e ".[dev]"
 # Run unit tests
 pytest tests/unit -v
 
-# Run functional tests (requires DB2 connection)
+# Run functional tests (requires Db2 connection)
 pytest tests/functional -v
 
 # Run all tests
