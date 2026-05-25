@@ -1,10 +1,11 @@
 dbt-adapters~=1.15
 dbt-common>=1.37.3,<2.0
 dbt-core~=1.11.0
+pathspec>=0.9,<1.0
 dbt-extractor~=0.6
 dbt-semantic-interfaces~=0.9
 dbt-tests-adapter~=1.11
-black>=26.3.1
+black>=24.10.0,<25.0
 bumpversion~=0.6.0
 click~=8.1
 ddtrace~=2.1
