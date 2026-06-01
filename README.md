@@ -354,6 +354,26 @@ flake8 dbt/ tests/
 pre-commit run --all-files
 ```
 
+### Security Scans
+
+The project includes automated security and quality scans:
+
+```bash
+# Security scan with Bandit
+bandit -r dbt/adapters/db2
+
+# Code quality with Pylint
+pylint dbt/adapters/db2/
+```
+
+#### Automated Scans Workflow
+- **Triggers**: Push to main, pull requests, weekly schedule (Mondays 2 AM UTC), manual dispatch
+- **Scans**:
+  - **Mend Dependency Scan**: Identifies vulnerable dependencies and license compliance issues
+  - **Pylint Code Quality**: Advanced code quality analysis beyond flake8
+  - **Bandit Security Scan**: Detects common security vulnerabilities in Python code
+- **Reports**: Automatically uploaded as workflow artifacts for review
+
 ### Continuous Integration
 
 The project uses GitHub Actions for CI/CD:
