@@ -1,0 +1,2 @@
+# Exclude sample project files from Mend scan to avoid scanning non-production/example dependencies
+dbtdb2sampleproject/
