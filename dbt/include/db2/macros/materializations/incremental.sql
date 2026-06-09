@@ -41,7 +41,7 @@
     {% if tmp_relation_check is not none %}
       {% do adapter.drop_relation(tmp_relation_check) %}
     {% endif %}
-    
+
     {% set tmp_table_sql %}
       create table {{ tmp_relation }}
       as (

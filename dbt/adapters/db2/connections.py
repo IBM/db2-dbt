@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------------------------------#
+# -------------------------------------------------------------------------------------------------#
 #                      DISCLAIMER OF WARRANTIES AND LIMITATION OF LIABILITY                       #
 #                                                                                                 #
 #  (C) COPYRIGHT International Business Machines Corp. 2026 All Rights Reserved             #
@@ -19,7 +19,7 @@
 #  above limitations or exclusions may not apply to you. IBM shall not be liable for any damages  #
 #  you suffer as a result of using, copying, modifying or distributing the Sample, even if IBM    #
 #  has been advised of the possibility of such damages.                                           #
-#-------------------------------------------------------------------------------------------------#
+# -------------------------------------------------------------------------------------------------#
 
 from contextlib import contextmanager
 from dataclasses import dataclass
@@ -83,9 +83,7 @@ class Db2Credentials(Credentials):
         List of keys to display in the `dbt debug` output.
         """
         return (
-            ("dsn", "username")
-            if self.dsn
-            else ("host", "port", "database", "schema", "username")
+            ("dsn", "username") if self.dsn else ("host", "port", "database", "schema", "username")
         )
 
 
@@ -168,7 +166,7 @@ class Db2ConnectionManager(connection_cls):
                     # Add Db2 SSL/TLS parameters if provided
                     if credentials.security:
                         # Enable SSL/TLS security
-                        if credentials.security.upper() == 'SSL':
+                        if credentials.security.upper() == "SSL":
                             conn_str += "Security=SSL;"
                             logger.debug("SSL/TLS security enabled")
                         else:
@@ -178,7 +176,9 @@ class Db2ConnectionManager(connection_cls):
                     # Add SSL server certificate (CA certificate for verification)
                     if credentials.ssl_server_certificate:
                         conn_str += f"SSLServerCertificate={credentials.ssl_server_certificate};"
-                        logger.debug(f"SSL server certificate: {credentials.ssl_server_certificate}")
+                        logger.debug(
+                            f"SSL server certificate: {credentials.ssl_server_certificate}"
+                        )
 
                     # Add SSL client keystore database
                     if credentials.ssl_client_keystore:
@@ -193,14 +193,16 @@ class Db2ConnectionManager(connection_cls):
                     # Add hostname verification if specified
                     if credentials.ssl_client_hostname_validation is not None:
                         # Db2 uses SSLClientHostnameValidation parameter
-                        validation_value = "true" if credentials.ssl_client_hostname_validation else "false"
+                        validation_value = (
+                            "true" if credentials.ssl_client_hostname_validation else "false"
+                        )
                         conn_str += f"SSLClientHostnameValidation={validation_value};"
                         logger.debug(f"SSL hostname validation: {validation_value}")
 
                     logger.debug("Connecting with connection string (SSL params hidden)")
                     conn = ibm_db_dbi.connect(conn_str, "", "")
 
-                if not hasattr(conn, 'cursor'):
+                if not hasattr(conn, "cursor"):
                     raise DbtRuntimeError("Connection object lacks 'cursor()' method")
                 return conn
             except Exception as e:
@@ -234,7 +236,7 @@ class Db2ConnectionManager(connection_cls):
         try:
             db2_connection.close()
         except Exception as e:
-            logger.error('Error closing connection for cancel request')
+            logger.error("Error closing connection for cancel request")
             raise Exception(str(e))
 
         logger.info("Canceled query '{}'".format(connection_name))
@@ -243,10 +245,10 @@ class Db2ConnectionManager(connection_cls):
         """Override to handle Db2-specific transaction behavior"""
         connection = self.get_thread_connection()
         if connection.transaction_open is True:
-            logger.debug('Connection is already in a transaction')
+            logger.debug("Connection is already in a transaction")
             return
 
-        logger.debug('Beginning a new transaction')
+        logger.debug("Beginning a new transaction")
         connection.transaction_open = True
         # Db2 doesn't need an explicit BEGIN statement
 
@@ -254,10 +256,10 @@ class Db2ConnectionManager(connection_cls):
         """Override to handle Db2-specific transaction behavior"""
         connection = self.get_thread_connection()
         if connection.transaction_open is False:
-            logger.debug('No transaction was open, nothing to commit')
+            logger.debug("No transaction was open, nothing to commit")
             return
 
-        logger.debug('Committing transaction')
+        logger.debug("Committing transaction")
         connection.handle.commit()
         connection.transaction_open = False
 
@@ -286,22 +288,25 @@ class Db2ConnectionManager(connection_cls):
             log_sql = f"{sql[:512]}..." if abridge_sql_log else sql
             fire_event(SQLQuery(conn_name=connection.name, sql=log_sql))
             pre = time.time()
-            logger.debug(f"Calling .cursor() on connection.handle of type: {type(connection.handle)}")
+            logger.debug(
+                f"Calling .cursor() on connection.handle of type: {type(connection.handle)}"
+            )
 
             # Check if handle has cursor method
-            if connection.handle and hasattr(connection.handle, 'cursor'):
+            if connection.handle and hasattr(connection.handle, "cursor"):
                 # Use Any type to bypass type checking for the cursor method
                 from typing import cast, Any
+
                 db_conn = cast(Any, connection.handle)
                 cursor = db_conn.cursor()
 
                 # If this is the debug query, modify it for Db2 syntax
-                if sql.strip().lower() == 'select 1 as id':
+                if sql.strip().lower() == "select 1 as id":
                     logger.debug("Detected debug query, modifying for Db2 syntax")
                     sql = "SELECT 1 FROM SYSIBM.SYSDUMMY1"
 
                 # Check if the SQL starts with BEGIN
-                if sql.strip().upper().startswith('BEGIN'):
+                if sql.strip().upper().startswith("BEGIN"):
                     logger.debug("Detected BEGIN statement, removing it")
                     sql = sql.strip()[5:].strip()
             else:
@@ -330,7 +335,14 @@ class Db2ConnectionManager(connection_cls):
     def _map_dbapi_type_to_name(cls, values: set) -> str:
         """Map DBAPITypeObject values to Db2 type name."""
         # STRING types
-        if values & {"CHAR", "CHARACTER", "VARCHAR", "STRING", "CHARACTER VARYING", "CHAR VARYING"}:
+        if values & {
+            "CHAR",
+            "CHARACTER",
+            "VARCHAR",
+            "STRING",
+            "CHARACTER VARYING",
+            "CHAR VARYING",
+        }:
             return "STRING"
 
         # INTEGER types
@@ -382,12 +394,12 @@ class Db2ConnectionManager(connection_cls):
         sql = self._add_query_comment(sql)
 
         # If this is the debug query, modify it for Db2 syntax
-        if sql.strip().lower() == 'select 1 as id':
+        if sql.strip().lower() == "select 1 as id":
             logger.debug("Detected debug query in execute, modifying for Db2 syntax")
             sql = "SELECT 1 FROM SYSIBM.SYSDUMMY1"
 
         # Check if the SQL starts with BEGIN
-        if sql.strip().upper().startswith('BEGIN'):
+        if sql.strip().upper().startswith("BEGIN"):
             logger.debug("Detected BEGIN statement in execute, removing it")
             sql = sql.strip()[5:].strip()
 

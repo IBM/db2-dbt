@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------------------------------#
+# -------------------------------------------------------------------------------------------------#
 #                      DISCLAIMER OF WARRANTIES AND LIMITATION OF LIABILITY                       #
 #                                                                                                 #
 #  (C) COPYRIGHT International Business Machines Corp. 2026 All Rights Reserved             #
@@ -19,7 +19,7 @@
 #  above limitations or exclusions may not apply to you. IBM shall not be liable for any damages  #
 #  you suffer as a result of using, copying, modifying or distributing the Sample, even if IBM    #
 #  has been advised of the possibility of such damages.                                           #
-#-------------------------------------------------------------------------------------------------#
+# -------------------------------------------------------------------------------------------------#
 
 from dbt.adapters.base.column import Column
 from dataclasses import dataclass
@@ -41,6 +41,4 @@ class Db2Column(Column):
 
     # Override to ignore data type precision
     def is_numeric(self) -> bool:
-        return any(
-            self.dtype.lower().startswith(dtype) for dtype in ["numeric", "decimal"]
-        )
+        return any(self.dtype.lower().startswith(dtype) for dtype in ["numeric", "decimal"])

@@ -12,7 +12,7 @@
             {{ item }}
             {%- if not loop.last -%},{%- endif -%}
           {%- endfor -%}
-        )  
+        )
       {%- endif -%}
   {%- endif -%}
 {%- endmacro -%}
@@ -141,7 +141,7 @@
   {% endcall %}
 
   {% set results = load_result('get_columns_in_relation').table %}
-  
+
   {# If SYSCAT returns no results (temp tables), use cursor.description fallback #}
   {% if results | length == 0 %}
     {% call statement('get_columns_via_cursor', fetch_result=True) %}

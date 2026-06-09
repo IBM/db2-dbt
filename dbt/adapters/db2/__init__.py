@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------------------------------#
+# -------------------------------------------------------------------------------------------------#
 #                      DISCLAIMER OF WARRANTIES AND LIMITATION OF LIABILITY                       #
 #                                                                                                 #
 #  (C) COPYRIGHT International Business Machines Corp. 2026 All Rights Reserved             #
@@ -19,9 +19,9 @@
 #  above limitations or exclusions may not apply to you. IBM shall not be liable for any damages  #
 #  you suffer as a result of using, copying, modifying or distributing the Sample, even if IBM    #
 #  has been advised of the possibility of such damages.                                           #
-#-------------------------------------------------------------------------------------------------#
+# -------------------------------------------------------------------------------------------------#
 
-from dbt.adapters.db2.connections import Db2ConnectionManager # noqa
+from dbt.adapters.db2.connections import Db2ConnectionManager  # noqa
 from dbt.adapters.db2.connections import Db2Credentials
 from dbt.adapters.db2.impl import Db2Adapter
 from dbt.adapters.db2.__version__ import __version__
@@ -31,8 +31,7 @@ import dbt.include.db2
 
 
 Plugin = AdapterPlugin(
-    adapter=Db2Adapter,
-    credentials=Db2Credentials,
-    include_path=dbt.include.db2.PACKAGE_PATH)
+    adapter=Db2Adapter, credentials=Db2Credentials, include_path=dbt.include.db2.PACKAGE_PATH
+)
 
-__all__ = ['Db2Adapter', 'Db2Credentials', 'Db2ConnectionManager', 'Plugin', '__version__']
+__all__ = ["Db2Adapter", "Db2Credentials", "Db2ConnectionManager", "Plugin", "__version__"]

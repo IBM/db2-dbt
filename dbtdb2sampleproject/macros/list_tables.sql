@@ -1,6 +1,6 @@
 {% macro list_tables(schema) %}
   {{ log("Starting list_tables macro with schema: " ~ schema, info=True) }}
-  
+
   {% set query %}
     select
       tabname as table_name,
@@ -11,13 +11,13 @@
     where tabschema = 'NEWUSER'
     order by create_time desc
   {% endset %}
-  
+
   {{ log("Executing query: " ~ query, info=True) }}
-  
+
   {% set results = run_query(query) %}
-  
+
   {{ log("Query executed. Results count: " ~ results|length, info=True) }}
-  
+
   {% if execute %}
     {% if results|length > 0 %}
       {{ log("All tables in NEWUSER schema:", info=True) }}
@@ -32,7 +32,7 @@
       {{ log("No tables found in NEWUSER schema", info=True) }}
     {% endif %}
   {% endif %}
-  
+
   {% set query %}
     select
       viewname as view_name,
@@ -41,13 +41,13 @@
     from syscat.views
     where viewschema = 'NEWUSER'
   {% endset %}
-  
+
   {{ log("Executing query: " ~ query, info=True) }}
-  
+
   {% set results = run_query(query) %}
-  
+
   {{ log("Query executed. Results count: " ~ results|length, info=True) }}
-  
+
   {% if execute %}
     {% if results|length > 0 %}
       {{ log("All views in NEWUSER schema:", info=True) }}

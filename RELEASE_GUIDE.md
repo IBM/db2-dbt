@@ -203,7 +203,7 @@ Deployment branches and tags:
 ### Issue: "User not authorized to release"
 **Cause:** Your GitHub username is not in the authorized users list.
 
-**Solution:** 
+**Solution:**
 1. Check the workflow file: `.github/workflows/build_release.yaml`
 2. Line 34 should contain your username in `AUTHORIZED_USERS`
 3. If not, add your username and commit the change

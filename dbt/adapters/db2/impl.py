@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------------------------------#
+# -------------------------------------------------------------------------------------------------#
 #                      DISCLAIMER OF WARRANTIES AND LIMITATION OF LIABILITY                       #
 #                                                                                                 #
 #  (C) COPYRIGHT International Business Machines Corp. 2026 All Rights Reserved             #
@@ -19,7 +19,7 @@
 #  above limitations or exclusions may not apply to you. IBM shall not be liable for any damages  #
 #  you suffer as a result of using, copying, modifying or distributing the Sample, even if IBM    #
 #  has been advised of the possibility of such damages.                                           #
-#-------------------------------------------------------------------------------------------------#
+# -------------------------------------------------------------------------------------------------#
 
 import os
 
@@ -54,7 +54,9 @@ class Db2Config(AdapterConfig):
     dist: Optional[str] = None
 
 
-FRESHNESS_MACRO_NAME = "collect_freshness"  # Macro used to analyze the freshness of the data imports in tables
+FRESHNESS_MACRO_NAME = (
+    "collect_freshness"  # Macro used to analyze the freshness of the data imports in tables
+)
 
 
 class Db2Adapter(SQLAdapter):
@@ -82,9 +84,7 @@ class Db2Adapter(SQLAdapter):
     # and we want to avoid quoting of columns
     # Source: https://github.com/dbt-labs/dbt-snowflake/blob/fda11c2e822519996101d2c456a51570f4ed1c04/dbt/adapters/snowflake/impl.py#L45-L54
     @classmethod
-    def _catalog_filter_table(
-        cls, table: agate.Table, manifest: Manifest
-    ) -> agate.Table:
+    def _catalog_filter_table(cls, table: agate.Table, manifest: Manifest) -> agate.Table:
         lowered = table.rename(column_names=[c.lower() for c in table.column_names])
         return super()._catalog_filter_table(lowered, manifest)
 
@@ -105,9 +105,7 @@ class Db2Adapter(SQLAdapter):
         )
 
     # Source: https://github.com/dbt-labs/dbt-snowflake/blob/fda11c2e822519996101d2c456a51570f4ed1c04/dbt/adapters/snowflake/impl.py#L128-L166
-    def list_relations_without_caching(
-        self, schema_relation: BaseRelation
-    ) -> List[BaseRelation]:
+    def list_relations_without_caching(self, schema_relation: BaseRelation) -> List[BaseRelation]:
         kwargs = {"schema_relation": schema_relation}
         try:
             results = self.execute_macro(LIST_RELATIONS_MACRO_NAME, kwargs=kwargs)
@@ -123,15 +121,16 @@ class Db2Adapter(SQLAdapter):
         quote_policy = {"database": True, "schema": True, "identifier": True}
 
         # Handle case where results is None or doesn't have select method
-        if results is None or not hasattr(results, 'select'):
+        if results is None or not hasattr(results, "select"):
             return relations
 
         # Get actual column names from results (case-insensitive match)
         columns = []
         for expected_col in ["DATABASE", "SCHEMA", "NAME", "TYPE"]:
             # Find matching column (case-insensitive)
-            matching_col = next((col for col in results.column_names
-                                if col.upper() == expected_col), None)
+            matching_col = next(
+                (col for col in results.column_names if col.upper() == expected_col), None
+            )
             if matching_col:
                 columns.append(matching_col)
             else:
@@ -184,9 +183,7 @@ class Db2Adapter(SQLAdapter):
             relations = self.list_relations_without_caching(relation)
             no_relation_exists = (
                 next(
-                    rel
-                    for rel in relations
-                    if rel.type == "view" and rel.identifier == identifier
+                    rel for rel in relations if rel.type == "view" and rel.identifier == identifier
                 )
                 is None
             )
@@ -237,7 +234,7 @@ class Db2Adapter(SQLAdapter):
         self.cache_renamed(from_relation, to_relation)
 
         kwargs = {"from_relation": from_relation, "to_relation": to_relation}
-        self.execute_macro('rename_relation', kwargs=kwargs)
+        self.execute_macro("rename_relation", kwargs=kwargs)
 
     @available
     def get_et_options(self, model) -> str:
@@ -299,32 +296,29 @@ class Db2Adapter(SQLAdapter):
         Even if the table is empty, agate table will have column metadata.
         """
         columns = []
-        if hasattr(cursor_result, 'table'):
+        if hasattr(cursor_result, "table"):
             table = cursor_result.table
 
             # Check explicitly for None, not truthiness (empty table evaluates to False)
             if table is not None:
                 # Agate tables have column_names and column_types attributes
-                if hasattr(table, 'column_names') and hasattr(table, 'column_types'):
+                if hasattr(table, "column_names") and hasattr(table, "column_types"):
                     for col_name, col_type in zip(table.column_names, table.column_types):
                         # Map agate types to Db2 types
                         dtype = str(col_type.__class__.__name__).upper()
-                        if dtype == 'NUMBER':
-                            dtype = 'DECIMAL'
-                        elif dtype == 'TEXT':
-                            dtype = 'VARCHAR'
-                        elif dtype == 'BOOLEAN':
-                            dtype = 'BOOLEAN'
-                        elif dtype == 'DATE':
-                            dtype = 'DATE'
-                        elif dtype == 'DATETIME':
-                            dtype = 'TIMESTAMP'
+                        if dtype == "NUMBER":
+                            dtype = "DECIMAL"
+                        elif dtype == "TEXT":
+                            dtype = "VARCHAR"
+                        elif dtype == "BOOLEAN":
+                            dtype = "BOOLEAN"
+                        elif dtype == "DATE":
+                            dtype = "DATE"
+                        elif dtype == "DATETIME":
+                            dtype = "TIMESTAMP"
 
                         db2_col = Db2Column(
-                            column=col_name,
-                            dtype=dtype,
-                            char_size=None,
-                            numeric_scale=None
+                            column=col_name, dtype=dtype, char_size=None, numeric_scale=None
                         )
                         columns.append(db2_col)
 
@@ -357,7 +351,9 @@ class Db2Adapter(SQLAdapter):
             AttrDict,  # current: contains AdapterResponse + agate.Table
             agate.Table,  # previous: just table
         ]
-        result = self.execute_macro(FRESHNESS_MACRO_NAME, kwargs=kwargs, macro_resolver=macro_resolver)
+        result = self.execute_macro(
+            FRESHNESS_MACRO_NAME, kwargs=kwargs, macro_resolver=macro_resolver
+        )
         if isinstance(result, agate.Table):
             deprecations.warn("collect-freshness-return-signature")
             adapter_response = None

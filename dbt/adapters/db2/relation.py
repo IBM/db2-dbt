@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------------------------------#
+# -------------------------------------------------------------------------------------------------#
 #                      DISCLAIMER OF WARRANTIES AND LIMITATION OF LIABILITY                       #
 #                                                                                                 #
 #  (C) COPYRIGHT International Business Machines Corp. 2026 All Rights Reserved             #
@@ -19,7 +19,7 @@
 #  above limitations or exclusions may not apply to you. IBM shall not be liable for any damages  #
 #  you suffer as a result of using, copying, modifying or distributing the Sample, even if IBM    #
 #  has been advised of the possibility of such damages.                                           #
-#-------------------------------------------------------------------------------------------------#
+# -------------------------------------------------------------------------------------------------#
 
 from dataclasses import dataclass, field
 from typing import Optional, Type, TypeVar
@@ -60,7 +60,9 @@ class Db2Relation(BaseRelation):
     path: Db2Path
     quote_policy: Policy = field(default_factory=lambda: Db2QuotePolicy())
     # Db2 uses two-part naming (schema.table), not three-part (database.schema.table)
-    include_policy: Policy = field(default_factory=lambda: Policy(database=False, schema=True, identifier=True))
+    include_policy: Policy = field(
+        default_factory=lambda: Policy(database=False, schema=True, identifier=True)
+    )
 
     def _is_exactish_match(self, field: ComponentName, value: str) -> bool:
         # Remove requirement for dbt_created due to dbt bug with cache preservation

@@ -33,11 +33,11 @@
 
 
 {% macro db2__snapshot_merge_sql(target, source, insert_cols) -%}
-    
+
     {%- if insert_cols | length == 0 -%}
         {{ exceptions.raise_compiler_error("insert_cols is empty — column introspection failed. Check Db2 type mapping in adapter.") }}
     {%- endif -%}
-    
+
     {%- set insert_cols_csv = insert_cols | join(', ') -%}
 
     {# Deduplicate source to avoid SQL0788N error in Db2 #}

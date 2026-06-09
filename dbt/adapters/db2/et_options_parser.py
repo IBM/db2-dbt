@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------------------------------#
+# -------------------------------------------------------------------------------------------------#
 #                      DISCLAIMER OF WARRANTIES AND LIMITATION OF LIABILITY                       #
 #                                                                                                 #
 #  (C) COPYRIGHT International Business Machines Corp. 2026 All Rights Reserved             #
@@ -19,7 +19,7 @@
 #  above limitations or exclusions may not apply to you. IBM shall not be liable for any damages  #
 #  you suffer as a result of using, copying, modifying or distributing the Sample, even if IBM    #
 #  has been advised of the possibility of such damages.                                           #
-#-------------------------------------------------------------------------------------------------#
+# -------------------------------------------------------------------------------------------------#
 
 import os
 import yaml
@@ -42,19 +42,19 @@ def et_options_constructor(loader, node):
 
 
 def etoptions_representer(dumper, data: ETOptions):
-    return dumper.represent_mapping('!ETOptions', {k: v for k, v in data.options.items()})
+    return dumper.represent_mapping("!ETOptions", {k: v for k, v in data.options.items()})
 
 
 def parse_et_options_yaml(file_path):
     if not os.path.exists(file_path):
         return {}
-    with open(file_path, 'r') as file:
+    with open(file_path, "r") as file:
         data = yaml.safe_load(file)
     return data
 
 
 def get_et_options_as_string(user_file_path: str):
-    yaml.SafeLoader.add_constructor('!ETOptions', et_options_constructor)
+    yaml.SafeLoader.add_constructor("!ETOptions", et_options_constructor)
     et_options_data = parse_et_options_yaml(user_file_path)
     if not et_options_data:
         return ""
@@ -66,6 +66,8 @@ def get_et_options_as_string(user_file_path: str):
 
 def create_et_options(project_path):
     yaml.add_representer(ETOptions, etoptions_representer)
-    et_options = ETOptions(options={'SkipRows': '1', 'Delimiter': "','", 'DateDelim': "'-'", 'MaxErrors': '0'})
+    et_options = ETOptions(
+        options={"SkipRows": "1", "Delimiter": "','", "DateDelim": "'-'", "MaxErrors": "0"}
+    )
     with open(f"{project_path}/et_options.yml", "w") as file:
         yaml.dump([et_options], file, default_flow_style=False)
