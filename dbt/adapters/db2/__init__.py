@@ -31,7 +31,15 @@ import dbt.include.db2
 
 
 Plugin = AdapterPlugin(
-    adapter=Db2Adapter, credentials=Db2Credentials, include_path=dbt.include.db2.PACKAGE_PATH
+    adapter=Db2Adapter,
+    credentials=Db2Credentials,
+    include_path=dbt.include.db2.PACKAGE_PATH,
 )
 
-__all__ = ["Db2Adapter", "Db2Credentials", "Db2ConnectionManager", "Plugin", "__version__"]
+__all__ = [
+    "Db2Adapter",
+    "Db2Credentials",
+    "Db2ConnectionManager",
+    "Plugin",
+    "__version__",
+]

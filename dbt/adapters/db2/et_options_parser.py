@@ -42,7 +42,9 @@ def et_options_constructor(loader, node):
 
 
 def etoptions_representer(dumper, data: ETOptions):
-    return dumper.represent_mapping("!ETOptions", {k: v for k, v in data.options.items()})
+    return dumper.represent_mapping(
+        "!ETOptions", {k: v for k, v in data.options.items()}
+    )
 
 
 def parse_et_options_yaml(file_path):
@@ -67,7 +69,12 @@ def get_et_options_as_string(user_file_path: str):
 def create_et_options(project_path):
     yaml.add_representer(ETOptions, etoptions_representer)
     et_options = ETOptions(
-        options={"SkipRows": "1", "Delimiter": "','", "DateDelim": "'-'", "MaxErrors": "0"}
+        options={
+            "SkipRows": "1",
+            "Delimiter": "','",
+            "DateDelim": "'-'",
+            "MaxErrors": "0",
+        }
     )
     with open(f"{project_path}/et_options.yml", "w") as file:
         yaml.dump([et_options], file, default_flow_style=False)

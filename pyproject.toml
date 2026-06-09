@@ -56,12 +56,6 @@ namespaces = true
 # If you want to read version from __version__.py dynamically in the future
 # version = {attr = "dbt.adapters.db2.__version__.version"}
 
-# Black configuration
-[tool.black]
-line-length = 99
-target-version = ['py310', 'py311', 'py312']
-include = '\.pyi?$'
-
 # Pytest configuration
 [tool.pytest.ini_options]
 minversion = "6.0"

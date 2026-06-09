@@ -350,9 +350,11 @@ The project uses flake8 for linting:
 # Run linting
 flake8 dbt/ tests/
 
-# Auto-fix some issues with pre-commit
+# Run formatting and repository checks
 pre-commit run --all-files
 ```
+
+Contributors should always run [`pre-commit run --all-files`](.pre-commit-config.yaml:1) before opening a pull request.
 
 ### Security Scans
 
@@ -488,8 +490,9 @@ Contributions are welcome! Please:
 2. Create a feature branch
 3. Make your changes
 4. Add tests (unit and/or functional)
-5. Ensure all tests pass and code passes linting
-6. Submit a pull request
+5. Run [`pre-commit run --all-files`](.pre-commit-config.yaml:1)
+6. Ensure all tests pass and code passes linting
+7. Submit a pull request
 
 All pull requests will automatically run:
 - Linting checks (flake8)

@@ -17,31 +17,13 @@ repos:
   - id: end-of-file-fixer
   - id: trailing-whitespace
   - id: check-case-conflict
-- repo: https://github.com/psf/black
-  rev: 22.3.0
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.15.16
   hooks:
-  - id: black
-    args:
-    - "--line-length=99"
-    - "--target-version=py38"
-  - id: black
-    alias: black-check
+  - id: ruff-format
+  - id: ruff-format
+    alias: ruff-format-check
     stages: [manual]
     args:
-    - "--line-length=99"
-    - "--target-version=py38"
     - "--check"
     - "--diff"
-- repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v0.782
-  hooks:
-  - id: mypy
-    args: [--show-error-codes, --ignore-missing-imports]
-    files: ^dbt/adapters/.*
-    language: system
-  - id: mypy
-    alias: mypy-check
-    stages: [manual]
-    args: [--show-error-codes, --pretty, --ignore-missing-imports]
-    files: ^dbt/adapters
-    language: system

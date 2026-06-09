@@ -93,7 +93,9 @@ Info = TypeVar("Info", bound="Db2InformationSchema")
 
 class Db2InformationSchema(InformationSchema):
     @classmethod
-    def get_path(cls, relation: Db2Relation, information_schema_view: Optional[str]) -> Db2Path:
+    def get_path(
+        cls, relation: Db2Relation, information_schema_view: Optional[str]
+    ) -> Db2Path:
         return Path(
             database=relation.database.replace('"', ""),
             schema=relation.schema,

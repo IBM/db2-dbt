@@ -41,4 +41,6 @@ class Db2Column(Column):
 
     # Override to ignore data type precision
     def is_numeric(self) -> bool:
-        return any(self.dtype.lower().startswith(dtype) for dtype in ["numeric", "decimal"])
+        return any(
+            self.dtype.lower().startswith(dtype) for dtype in ["numeric", "decimal"]
+        )

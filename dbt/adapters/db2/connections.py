@@ -33,7 +33,12 @@ from dbt.adapters.contracts.connection import Connection, Credentials, AdapterRe
 from dbt.adapters.sql.connections import SQLConnectionManager as connection_cls
 from dbt.adapters.events.logging import AdapterLogger
 from dbt_common.events.functions import fire_event, warn_or_error
-from dbt.adapters.events.types import ConnectionUsed, SQLQuery, SQLQueryStatus, TypeCodeNotFound
+from dbt.adapters.events.types import (
+    ConnectionUsed,
+    SQLQuery,
+    SQLQueryStatus,
+    TypeCodeNotFound,
+)
 from dbt_common.helper_types import Port
 import ibm_db_dbi
 
@@ -61,7 +66,9 @@ class Db2Credentials(Credentials):
     ssl_server_certificate: Optional[str] = None  # Path to server CA certificate
     ssl_client_keystore: Optional[str] = None  # Path to client keystore database
     ssl_client_keystash: Optional[str] = None  # Path to client keystash file
-    ssl_client_hostname_validation: Optional[bool] = None  # Enable hostname verification
+    ssl_client_hostname_validation: Optional[bool] = (
+        None  # Enable hostname verification
+    )
 
     _ALIASES = {"dbname": "database", "user": "username", "pass": "password"}
 
@@ -83,7 +90,9 @@ class Db2Credentials(Credentials):
         List of keys to display in the `dbt debug` output.
         """
         return (
-            ("dsn", "username") if self.dsn else ("host", "port", "database", "schema", "username")
+            ("dsn", "username")
+            if self.dsn
+            else ("host", "port", "database", "schema", "username")
         )
 
 
@@ -182,24 +191,36 @@ class Db2ConnectionManager(connection_cls):
 
                     # Add SSL client keystore database
                     if credentials.ssl_client_keystore:
-                        conn_str += f"SSLClientKeystoredb={credentials.ssl_client_keystore};"
-                        logger.debug(f"SSL client keystore: {credentials.ssl_client_keystore}")
+                        conn_str += (
+                            f"SSLClientKeystoredb={credentials.ssl_client_keystore};"
+                        )
+                        logger.debug(
+                            f"SSL client keystore: {credentials.ssl_client_keystore}"
+                        )
 
                     # Add SSL client keystash file
                     if credentials.ssl_client_keystash:
-                        conn_str += f"SSLClientKeystash={credentials.ssl_client_keystash};"
-                        logger.debug(f"SSL client keystash: {credentials.ssl_client_keystash}")
+                        conn_str += (
+                            f"SSLClientKeystash={credentials.ssl_client_keystash};"
+                        )
+                        logger.debug(
+                            f"SSL client keystash: {credentials.ssl_client_keystash}"
+                        )
 
                     # Add hostname verification if specified
                     if credentials.ssl_client_hostname_validation is not None:
                         # Db2 uses SSLClientHostnameValidation parameter
                         validation_value = (
-                            "true" if credentials.ssl_client_hostname_validation else "false"
+                            "true"
+                            if credentials.ssl_client_hostname_validation
+                            else "false"
                         )
                         conn_str += f"SSLClientHostnameValidation={validation_value};"
                         logger.debug(f"SSL hostname validation: {validation_value}")
 
-                    logger.debug("Connecting with connection string (SSL params hidden)")
+                    logger.debug(
+                        "Connecting with connection string (SSL params hidden)"
+                    )
                     conn = ibm_db_dbi.connect(conn_str, "", "")
 
                 if not hasattr(conn, "cursor"):
@@ -389,7 +410,11 @@ class Db2ConnectionManager(connection_cls):
         return "STRING"
 
     def execute(
-        self, sql: str, auto_begin: bool = False, fetch: bool = False, limit: Optional[int] = None
+        self,
+        sql: str,
+        auto_begin: bool = False,
+        fetch: bool = False,
+        limit: Optional[int] = None,
     ) -> Tuple[AdapterResponse, agate.Table]:
         sql = self._add_query_comment(sql)
 

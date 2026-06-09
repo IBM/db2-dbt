@@ -54,9 +54,7 @@ class Db2Config(AdapterConfig):
     dist: Optional[str] = None
 
 
-FRESHNESS_MACRO_NAME = (
-    "collect_freshness"  # Macro used to analyze the freshness of the data imports in tables
-)
+FRESHNESS_MACRO_NAME = "collect_freshness"  # Macro used to analyze the freshness of the data imports in tables
 
 
 class Db2Adapter(SQLAdapter):
@@ -84,7 +82,9 @@ class Db2Adapter(SQLAdapter):
     # and we want to avoid quoting of columns
     # Source: https://github.com/dbt-labs/dbt-snowflake/blob/fda11c2e822519996101d2c456a51570f4ed1c04/dbt/adapters/snowflake/impl.py#L45-L54
     @classmethod
-    def _catalog_filter_table(cls, table: agate.Table, manifest: Manifest) -> agate.Table:
+    def _catalog_filter_table(
+        cls, table: agate.Table, manifest: Manifest
+    ) -> agate.Table:
         lowered = table.rename(column_names=[c.lower() for c in table.column_names])
         return super()._catalog_filter_table(lowered, manifest)
 
@@ -105,7 +105,9 @@ class Db2Adapter(SQLAdapter):
         )
 
     # Source: https://github.com/dbt-labs/dbt-snowflake/blob/fda11c2e822519996101d2c456a51570f4ed1c04/dbt/adapters/snowflake/impl.py#L128-L166
-    def list_relations_without_caching(self, schema_relation: BaseRelation) -> List[BaseRelation]:
+    def list_relations_without_caching(
+        self, schema_relation: BaseRelation
+    ) -> List[BaseRelation]:
         kwargs = {"schema_relation": schema_relation}
         try:
             results = self.execute_macro(LIST_RELATIONS_MACRO_NAME, kwargs=kwargs)
@@ -129,7 +131,8 @@ class Db2Adapter(SQLAdapter):
         for expected_col in ["DATABASE", "SCHEMA", "NAME", "TYPE"]:
             # Find matching column (case-insensitive)
             matching_col = next(
-                (col for col in results.column_names if col.upper() == expected_col), None
+                (col for col in results.column_names if col.upper() == expected_col),
+                None,
             )
             if matching_col:
                 columns.append(matching_col)
@@ -183,7 +186,9 @@ class Db2Adapter(SQLAdapter):
             relations = self.list_relations_without_caching(relation)
             no_relation_exists = (
                 next(
-                    rel for rel in relations if rel.type == "view" and rel.identifier == identifier
+                    rel
+                    for rel in relations
+                    if rel.type == "view" and rel.identifier == identifier
                 )
                 is None
             )
@@ -238,7 +243,9 @@ class Db2Adapter(SQLAdapter):
 
     @available
     def get_et_options(self, model) -> str:
-        return get_et_options_as_string(os.path.join(model["root_path"], "et_options.yml"))
+        return get_et_options_as_string(
+            os.path.join(model["root_path"], "et_options.yml")
+        )
 
     # Override to change the default value of quote_columns to False
     # Source: https://github.com/dbt-labs/dbt-core/blob/7f8d9a7af976f640e376900773a0d793acf3a3ce/core/dbt/adapters/base/impl.py#L812-L828
@@ -303,7 +310,9 @@ class Db2Adapter(SQLAdapter):
             if table is not None:
                 # Agate tables have column_names and column_types attributes
                 if hasattr(table, "column_names") and hasattr(table, "column_types"):
-                    for col_name, col_type in zip(table.column_names, table.column_types):
+                    for col_name, col_type in zip(
+                        table.column_names, table.column_types
+                    ):
                         # Map agate types to Db2 types
                         dtype = str(col_type.__class__.__name__).upper()
                         if dtype == "NUMBER":
@@ -318,7 +327,10 @@ class Db2Adapter(SQLAdapter):
                             dtype = "TIMESTAMP"
 
                         db2_col = Db2Column(
-                            column=col_name, dtype=dtype, char_size=None, numeric_scale=None
+                            column=col_name,
+                            dtype=dtype,
+                            char_size=None,
+                            numeric_scale=None,
                         )
                         columns.append(db2_col)
 
