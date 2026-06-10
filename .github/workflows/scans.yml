@@ -17,59 +17,6 @@ permissions:
 
 jobs:
 
-  mend:
-    name: Mend Dependency Scan
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.11"
-
-      - name: Install project dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e .
-          if [ -f dev-requirements.txt ]; then
-            pip install -r dev-requirements.txt
-          fi
-
-      - name: Set up Java
-        uses: actions/setup-java@v6
-        with:
-          distribution: temurin
-          java-version: "17"
-
-      - name: Download Mend Unified Agent
-        run: |
-          curl -L -o wss-unified-agent.jar https://unified-agent.s3.amazonaws.com/wss-unified-agent.jar
-
-      - name: Get Mend Config and run agent
-        env:
-          WS_APIKEY: ${{ secrets.AB_APIKEY }}
-          WS_WSS_URL: ${{ secrets.AB_WSS_URL }}
-          WS_USERKEY: ${{ secrets.AB_USERKEY }}
-          WS_PRODUCTNAME: db2-ecosystem
-          WS_PROJECTNAME: ibm-dbt-db2
-        run: |
-          java -jar wss-unified-agent.jar -d .
-
-      - name: Upload Mend scan report
-        if: always()
-        uses: actions/upload-artifact@v6
-        with:
-          name: mend-scan-report
-          path: |
-            **/whitesource*
-            **/mend*
-          if-no-files-found: ignore
-
   pylint-scan:
     name: Pylint Code Quality
     runs-on: ubuntu-latest
@@ -95,7 +42,7 @@ jobs:
 
       - name: Upload Pylint Report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: pylint-quality-report
           path: pylint-report.json
@@ -127,7 +74,7 @@ jobs:
 
       - name: Upload report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: bandit-security-report
           path: bandit-report.json
