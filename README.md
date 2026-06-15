@@ -29,7 +29,7 @@ cd db2-dbt
 pip install -e .
 ```
 
-### Install from PyPI (when available)
+### Install from PyPI
 
 ```bash
 pip install ibm-dbt-db2
@@ -501,7 +501,7 @@ All pull requests will automatically run:
 
 ## License
 
-[Add your license here]
+Apache License 2.0 - See [LICENSE](LICENSE) file for details.
 
 ## Support
 
@@ -511,17 +511,16 @@ For issues and questions:
 
 ## Version History
 
-### 1.0.0 (Current)
-- Migrated to modern `pyproject.toml` packaging (PEP 517/518/621)
-- Updated to dbt-core ~1.11.0
-- Updated ibm_db to 3.2.8
-- **Breaking:** Dropped Python 3.9 support (requires Python 3.10+)
-- Tested on Python 3.10, 3.11, 3.12
-- Fixed 27 Flake8 linting errors
-- Improved unit test coverage (37 passing, 8 skipped)
-- Updated to strict code quality standards
-- Modernized CI/CD workflows
-- Security updates (PyYAML 6.0.3+, flake8 7.3)
+### 1.0.0 (Initial Release)
+- Modern `pyproject.toml` packaging (PEP 517/518/621)
+- Full dbt-core ~1.11.0 support
+- IBM Db2 driver (ibm_db 3.2.8)
+- Python 3.10, 3.11, 3.12 support
+- Comprehensive test coverage (38 passing tests)
+- Production-ready code quality standards
+- Automated CI/CD workflows with GitHub Actions
+- Security scanning (Bandit, Pylint)
+- SSL/TLS connection support
 
 ## Related Projects
 
