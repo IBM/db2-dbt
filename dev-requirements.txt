@@ -8,7 +8,7 @@ dbt-tests-adapter~=1.11
 ruff==0.15.16
 bumpversion~=0.6.0
 click~=8.1
-ddtrace~=2.1
+ddtrace>=4.8.2
 flake8~=7.3
 flaky~=3.7
 freezegun~=1.2
