@@ -29,5 +29,5 @@ tox~=4.11
 types-pytz~=2023.3
 types-requests~=2.31
 twine~=4.0
-wheel>=0.46.2
+wheel>=0.47.0
 PyYAML>=6.0.3
