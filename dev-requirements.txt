@@ -22,7 +22,7 @@ pytest-cov~=6.0
 pytest-csv~=3.0
 pytest-dotenv~=0.5.2
 pytest-logbook~=1.2
-logbook<1.8
+logbook<1.10
 pytest-xdist~=3.8
 pytz~=2026.2
 tox~=4.11
