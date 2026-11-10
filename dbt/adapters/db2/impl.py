@@ -59,7 +59,7 @@ FRESHNESS_MACRO_NAME = "collect_freshness"  # Macro used to analyze the freshnes
 
 class Db2Adapter(SQLAdapter):
     INT_MIN32 = -2147483648
-    INT_MAX32 = 2147483648
+    INT_MAX32 = 2147483647
 
     AdapterSpecificConfigs = Db2Config
     ConnectionManager = Db2ConnectionManager
@@ -398,8 +398,10 @@ class Db2Adapter(SQLAdapter):
         if decimals:
             return "float8"
         else:
-            clm = max([row[col_idx] for row in agate_table.rows])
-            if clm >= cls.INT_MIN32 and clm <= cls.INT_MAX32:
+            values = agate_table.columns[col_idx].values_without_nulls()
+            if not values:
+                return "integer"
+            elif min(values) >= cls.INT_MIN32 and max(values) <= cls.INT_MAX32:
                 return "integer"
             else:
                 return "bigint"
