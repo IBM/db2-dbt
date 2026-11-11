@@ -77,6 +77,23 @@ class TestDb2AdapterConversions(AdapterConversions):
         for col_idx, expect in enumerate(expected):
             assert Db2Adapter.convert_number_type(agate_table, col_idx) == expect
 
+    def test_convert_number_type_with_nulls_and_bounds(self):
+        rows = [
+            ["", "10", "-3000000000", "3000000000", ""],
+            ["", "", "10", "10", "3000000000"],
+            ["", "30", "20", "20", ""],
+        ]
+        agate_table = self._make_table_of(rows, agate.Number)
+        expected = [
+            "integer",
+            "integer",
+            "bigint",
+            "bigint",
+            "bigint",
+        ]
+        for col_idx, expect in enumerate(expected):
+            assert Db2Adapter.convert_number_type(agate_table, col_idx) == expect
+
     def test_convert_boolean_type(self):
         rows = [
             ["", "false", "true"],
