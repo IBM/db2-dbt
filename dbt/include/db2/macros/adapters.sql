@@ -27,19 +27,8 @@
     {{ dist(_dist) }}
     ;
 
-    {# Db2 does not support WITH clauses in INSERT statements #}
-    {# Extract the final SELECT statement from the SQL #}
-    {% set sql_no_ctes = sql %}
-    {% if sql.strip().upper().startswith('WITH') %}
-      {# This is a very simple approach - for complex CTEs, a more sophisticated parser would be needed #}
-      {% set final_select_pos = sql.upper().rfind('SELECT') %}
-      {% if final_select_pos > 0 %}
-        {% set sql_no_ctes = sql[final_select_pos:] %}
-      {% endif %}
-    {% endif %}
-
     insert into {{ relation }}
-    {{ sql_no_ctes }};
+    {{ sql }};
 {% endmacro %}
 
 {% macro create_table_no_constraints(temporary, relation, sql, _dist) %}

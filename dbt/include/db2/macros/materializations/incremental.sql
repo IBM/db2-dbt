@@ -7,16 +7,6 @@
 
   {{ run_hooks(pre_hooks) }}
 
-  -- Extract the final SELECT statement from the SQL if it has CTEs
-  {% set model_sql = sql %}
-  {% set sql_no_ctes = model_sql %}
-  {% if model_sql.strip().upper().startswith('WITH') %}
-    {% set final_select_pos = model_sql.upper().rfind('SELECT') %}
-    {% if final_select_pos > 0 %}
-      {% set sql_no_ctes = model_sql[final_select_pos:] %}
-    {% endif %}
-  {% endif %}
-
   {% if existing_relation is none %}
     -- Create the table if it doesn't exist
     {% set build_sql %}
