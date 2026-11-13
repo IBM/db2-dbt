@@ -14,21 +14,22 @@
       )
     )
 {%- endmacro %}
-{% macro db2__build_snapshot_staging_table(strategy, sql, target_relation) %}
-    {% set tmp_relation = make_temp_relation(target_relation) %}
+{% macro build_snapshot_staging_table(strategy, sql, target_relation) %}
+    {% set tmp_relation = make_temp_relation(target_relation).incorporate(type='table') %}
+    {% do adapter.drop_relation(tmp_relation) %}
     {% set select = snapshot_staging_table(strategy, sql, target_relation) %}
-
-    {# Drop temp table if it exists using adapter method #}
-    {% set tmp_relation_exists = load_relation(tmp_relation) %}
-    {% if tmp_relation_exists is not none %}
-        {% do adapter.drop_relation(tmp_relation) %}
-    {% endif %}
 
     {% call statement('build_snapshot_staging_relation') %}
         {{ create_table_as(False, tmp_relation, select) }}
     {% endcall %}
 
     {% do return(tmp_relation) %}
+{% endmacro %}
+
+{% macro db2__post_snapshot(staging_relation) %}
+    {% set staging_table = staging_relation.incorporate(type='table') %}
+    {% do adapter.drop_relation(staging_table) %}
+    {% do adapter.commit() %}
 {% endmacro %}
 
 

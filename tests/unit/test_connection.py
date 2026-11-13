@@ -147,7 +147,7 @@ class TestDb2Connection(TestCase):
         self.mock_execute.assert_has_calls(
             [
                 mock.call(
-                    '/* dbt */\ndrop table "test_schema".test_table'
+                    '/* dbt */\ndrop table if exists "test_schema".test_table'
                 )
             ]
         )

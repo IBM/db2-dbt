@@ -61,14 +61,6 @@
   {%- set _dist = config.get('dist') -%}
   {{ sql_header if sql_header is not none }}
 
-  {# Drop temp table if it exists (for snapshot temp tables with __dbt_tmp suffix) #}
-  {# Use direct DROP IF EXISTS to avoid case sensitivity issues with load_relation #}
-  {% if relation.identifier.lower().endswith('__dbt_tmp') %}
-    {% call statement('drop_temp_if_exists', auto_begin=False) %}
-      DROP TABLE {{ relation }}
-    {% endcall %}
-  {% endif %}
-
   {% set contract_config = config.get('contract') %}
   {% if contract_config.enforced and (not temporary) %}
     {{ create_table_with_constraints(relation, sql, _dist) }}
@@ -109,7 +101,11 @@
 
 {% macro db2__drop_relation(relation) -%}
   {% call statement('drop_relation', auto_begin=False) -%}
-    drop {{ relation.type }} {{ relation }}
+    {%- if relation.type == 'view' -%}
+      drop view {{ relation }}
+    {%- else -%}
+      drop table if exists {{ relation }}
+    {%- endif -%}
   {%- endcall %}
 {% endmacro %}
 
@@ -125,6 +121,10 @@
 {% endmacro %}
 
 {% macro db2__get_columns_in_relation(relation) -%}
+  {% if not execute %}
+    {{ return([]) }}
+  {% endif %}
+
   {# First try SYSCAT.COLUMNS for regular tables #}
   {% call statement('get_columns_in_relation', fetch_result=True) %}
       select
@@ -133,14 +133,15 @@
           length,
           scale
       from syscat.columns
-      where tabname = upper('{{ relation.identifier }}')
+      where upper(tabname) = upper('{{ relation.identifier }}')
         {% if relation.schema %}
-        and tabschema = upper('{{ relation.schema }}')
+        and upper(tabschema) = upper('{{ relation.schema }}')
         {% endif %}
       order by colno
   {% endcall %}
 
-  {% set results = load_result('get_columns_in_relation').table %}
+  {% set res = load_result('get_columns_in_relation') %}
+  {% set results = res.table if res else [] %}
 
   {# If SYSCAT returns no results (temp tables), use cursor.description fallback #}
   {% if results | length == 0 %}

@@ -3,7 +3,7 @@
   {% set full_refresh_mode = flags.FULL_REFRESH %}
   {% set target_relation = this.incorporate(type='table') %}
   {% set existing_relation = load_relation(this) %}
-  {% set tmp_relation = make_temp_relation(this) %}
+  {% set tmp_relation = make_temp_relation(this).incorporate(type='table') %}
 
   {{ run_hooks(pre_hooks) }}
 
@@ -104,10 +104,7 @@
 
   {# Clean up temporary table after successful merge #}
   {% if existing_relation is not none and not full_refresh_mode %}
-    {% set cleanup_tmp_relation = load_relation(tmp_relation) %}
-    {% if cleanup_tmp_relation is not none %}
-      {% do adapter.drop_relation(cleanup_tmp_relation) %}
-    {% endif %}
+    {% do adapter.drop_relation(tmp_relation) %}
   {% endif %}
 
   {# Commit the transaction to ensure the table is persisted #}
