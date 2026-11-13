@@ -13,21 +13,11 @@
     {{ adapter.drop_relation(old_relation) }}
   {% endif %}
 
-  -- Extract the final SELECT statement from the SQL if it has CTEs
-  {% set model_sql = sql %}
-  {% set sql_no_ctes = model_sql %}
-  {% if model_sql.strip().upper().startswith('WITH') %}
-    {% set final_select_pos = model_sql.upper().rfind('SELECT') %}
-    {% if final_select_pos > 0 %}
-      {% set sql_no_ctes = model_sql[final_select_pos:] %}
-    {% endif %}
-  {% endif %}
-
-  -- Build the SQL for creating the table
+  -- Build the SQL for creating the table (Db2 supports CTEs inside the fullselect)
   {% set build_sql %}
     create table {{ target_relation }}
     as (
-      {{ sql_no_ctes }}
+      {{ sql }}
     ) WITH DATA
   {% endset %}
 
