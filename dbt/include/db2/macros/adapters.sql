@@ -79,7 +79,7 @@
 
 {% macro db2__list_schemas(database) -%}
   {% call statement('list_schemas', fetch_result=True, auto_begin=False) %}
-    SELECT SCHEMANAME as name
+    SELECT RTRIM(SCHEMANAME) as name
     FROM SYSCAT.SCHEMATA
     WHERE SCHEMANAME NOT LIKE 'SYS%'
       AND SCHEMANAME NOT IN ('NULLID', 'SQLJ', 'ERRORSCHEMA')
@@ -92,8 +92,8 @@
   {% call statement('list_relations_without_caching', fetch_result=True) -%}
     SELECT
       CURRENT SERVER as database,
-      TABSCHEMA as schema,
-      TABNAME as name,
+      RTRIM(TABSCHEMA) as schema,
+      RTRIM(TABNAME) as name,
       CASE TYPE
         WHEN 'T' THEN 'table'
         WHEN 'V' THEN 'view'

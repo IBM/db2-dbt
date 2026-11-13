@@ -4,16 +4,16 @@
   {%- call statement('catalog', fetch_result=True) -%}
 
     select
-        SYSCAT.COLUMNS.TABSCHEMA as table_database,
-        SYSCAT.COLUMNS.TABSCHEMA as table_schema,
-        SYSCAT.COLUMNS.TABNAME as table_name,
+        RTRIM(SYSCAT.COLUMNS.TABSCHEMA) as table_database,
+        RTRIM(SYSCAT.COLUMNS.TABSCHEMA) as table_schema,
+        RTRIM(SYSCAT.COLUMNS.TABNAME) as table_name,
         SYSCAT.TABLES.TYPE as table_type,
         SYSCAT.TABLES.REMARKS as table_comment,
         SYSCAT.COLUMNS.COLNAME as column_name,
         SYSCAT.COLUMNS.COLNO as column_index,
         SYSCAT.COLUMNS.TYPENAME as column_type,
         SYSCAT.COLUMNS.REMARKS as column_comment,
-        SYSCAT.TABLES.OWNER as table_owner
+        RTRIM(SYSCAT.TABLES.OWNER) as table_owner
     from
         SYSCAT.COLUMNS
         join SYSCAT.TABLES on
