@@ -4,9 +4,9 @@
   {%- call statement('catalog', fetch_result=True) -%}
 
     select
-        SYSCAT.COLUMNS.TABSCHEMA as table_database,
-        SYSCAT.COLUMNS.TABSCHEMA as table_schema,
-        SYSCAT.COLUMNS.TABNAME as table_name,
+        RTRIM(SYSCAT.COLUMNS.TABSCHEMA) as table_database,
+        RTRIM(SYSCAT.COLUMNS.TABSCHEMA) as table_schema,
+        RTRIM(SYSCAT.COLUMNS.TABNAME) as table_name,
         SYSCAT.TABLES.TYPE as table_type,
         SYSCAT.TABLES.REMARKS as table_comment,
         SYSCAT.COLUMNS.COLNAME as column_name,
