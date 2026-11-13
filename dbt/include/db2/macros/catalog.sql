@@ -13,7 +13,7 @@
         SYSCAT.COLUMNS.COLNO as column_index,
         SYSCAT.COLUMNS.TYPENAME as column_type,
         SYSCAT.COLUMNS.REMARKS as column_comment,
-        SYSCAT.TABLES.OWNER as table_owner
+        RTRIM(SYSCAT.TABLES.OWNER) as table_owner
     from
         SYSCAT.COLUMNS
         join SYSCAT.TABLES on
