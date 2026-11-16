@@ -17,7 +17,7 @@ The `ibm-dbt-db2` adapter allows dbt to work with IBM Db2 databases. This adapte
 - Python 3.10 - 3.12 (Python 3.13+ not yet tested; Python 3.9 not supported due to dbt-core 1.11+ requirements)
 - dbt-core ~= 1.11.0
 - ibm_db == 3.2.8
-- IBM Db2 database (LUW, z/OS, or iSeries)
+- IBM Db2 database (LUW)
 
 ## Installation
 
